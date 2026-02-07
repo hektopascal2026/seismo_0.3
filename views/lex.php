@@ -26,7 +26,7 @@
 
         <header>
             <h1>Lex</h1>
-            <p class="subtitle">Lex entries</p>
+            <p class="subtitle">EU legislation — finalized acts from EUR-Lex (CELLAR SPARQL)</p>
         </header>
 
         <?php if (isset($_SESSION['success'])): ?>
@@ -40,10 +40,45 @@
         <?php endif; ?>
 
         <div class="latest-entries-section">
-            <div class="empty-state">
-                <p>No Lex entries yet.</p>
+            <div class="section-title-row">
+                <h2 class="section-title">
+                    <?php if (!empty($lastLexRefreshDate)): ?>
+                        Refreshed: <?= htmlspecialchars($lastLexRefreshDate) ?>
+                    <?php else: ?>
+                        Refreshed: Never
+                    <?php endif; ?>
+                </h2>
             </div>
+
+            <?php if (empty($lexItems)): ?>
+                <div class="empty-state">
+                    <p>No legislation fetched yet. Click <strong>Refresh</strong> to query the EU CELLAR database.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($lexItems as $item): ?>
+                    <div class="entry-card">
+                        <div class="entry-header">
+                            <span class="entry-feed" style="background-color: #B2C2A2;"><?= htmlspecialchars($item['document_type'] ?? 'Legislation') ?></span>
+                            <?php if ($item['document_date']): ?>
+                                <span class="entry-date"><?= date('d.m.Y', strtotime($item['document_date'])) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <h3 class="entry-title">
+                            <a href="<?= htmlspecialchars($item['eurlex_url']) ?>" target="_blank" rel="noopener">
+                                <?= htmlspecialchars($item['title']) ?>
+                            </a>
+                        </h3>
+                        <div class="entry-actions">
+                            <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($item['celex']) ?></span>
+                            <a href="<?= htmlspecialchars($item['eurlex_url']) ?>" target="_blank" rel="noopener" class="entry-link">EUR-Lex →</a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
+
+    <!-- Floating Refresh Button -->
+    <a href="?action=refresh_lex" class="floating-refresh-btn" title="Fetch latest legislation from EU CELLAR">Refresh</a>
 </body>
 </html>

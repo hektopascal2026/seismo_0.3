@@ -878,8 +878,36 @@ switch ($action) {
         break;
         
     case 'lex':
-        // Show Lex entries page (no database entries for now)
+        // Show Lex entries page — EU legislation via SPARQL
+        $lexItems = [];
+        $lastLexRefreshDate = null;
+        
+        try {
+            $stmt = $pdo->query("SELECT * FROM lex_items ORDER BY document_date DESC LIMIT 50");
+            $lexItems = $stmt->fetchAll();
+            
+            // Get last refresh date
+            $lastRefreshStmt = $pdo->query("SELECT MAX(fetched_at) as last_refresh FROM lex_items");
+            $lastRefreshRow = $lastRefreshStmt->fetch();
+            if ($lastRefreshRow && $lastRefreshRow['last_refresh']) {
+                $lastLexRefreshDate = date('d.m.Y H:i', strtotime($lastRefreshRow['last_refresh']));
+            }
+        } catch (PDOException $e) {
+            // Table might not exist yet on first load
+        }
+        
         include 'views/lex.php';
+        break;
+    
+    case 'refresh_lex':
+        // Refresh Lex items from EU CELLAR SPARQL endpoint
+        try {
+            $count = refreshLexItems($pdo);
+            $_SESSION['success'] = "Lex refreshed: $count legislation items fetched from EUR-Lex.";
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Error refreshing Lex: ' . $e->getMessage();
+        }
+        header('Location: ?action=lex');
         break;
     
     case 'styleguide':
@@ -1777,6 +1805,89 @@ function handleDeleteEmail($pdo) {
     }
     
     header('Location: ?action=mail');
+}
+
+/**
+ * Refresh Lex items from the EU CELLAR SPARQL endpoint.
+ * Queries for recent finalized secondary legislation (regulations, directives, decisions).
+ */
+function refreshLexItems($pdo) {
+    // Determine "since" date: last fetch minus 7 days overlap, or 90 days ago on first run
+    $sinceDate = date('Y-m-d', strtotime('-90 days'));
+    try {
+        $lastFetchStmt = $pdo->query("SELECT MAX(fetched_at) as last_fetch FROM lex_items");
+        $lastFetchRow = $lastFetchStmt->fetch();
+        if ($lastFetchRow && $lastFetchRow['last_fetch']) {
+            $sinceDate = date('Y-m-d', strtotime($lastFetchRow['last_fetch'] . ' -7 days'));
+        }
+    } catch (PDOException $e) {
+        // Table might not exist yet, use default
+    }
+    
+    $sparqlQuery = '
+        PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        
+        SELECT DISTINCT ?work ?celex ?title ?date
+        WHERE {
+            ?work a cdm:legislation_secondary .
+            ?work cdm:work_date_document ?date .
+            ?work cdm:resource_legal_id_celex ?celex .
+            ?expr cdm:expression_belongs_to_work ?work .
+            ?expr cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG> .
+            ?expr cdm:expression_title ?title .
+            FILTER(?date >= "' . $sinceDate . '"^^xsd:date)
+        }
+        ORDER BY DESC(?date)
+        LIMIT 100
+    ';
+    
+    $sparql = new \EasyRdf\Sparql\Client('https://publications.europa.eu/webapi/rdf/sparql');
+    $results = $sparql->query($sparqlQuery);
+    
+    $count = 0;
+    $insertStmt = $pdo->prepare("
+        INSERT INTO lex_items (celex, title, document_date, document_type, eurlex_url, work_uri)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE
+            title = VALUES(title),
+            document_date = VALUES(document_date),
+            document_type = VALUES(document_type),
+            eurlex_url = VALUES(eurlex_url),
+            work_uri = VALUES(work_uri),
+            fetched_at = NOW()
+    ");
+    
+    foreach ($results as $row) {
+        $celex   = (string) $row->celex;
+        $title   = (string) $row->title;
+        $date    = (string) $row->date;
+        $workUri = (string) $row->work;
+        
+        $docType  = parseCelexType($celex);
+        $eurlexUrl = 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:' . urlencode($celex);
+        
+        $insertStmt->execute([$celex, $title, $date, $docType, $eurlexUrl, $workUri]);
+        $count++;
+    }
+    
+    return $count;
+}
+
+/**
+ * Parse the document type from a CELEX number.
+ * Format: sector(1) + year(4) + type letter + sequential number
+ * Sector 3 = secondary legislation. Type: R=Regulation, L=Directive, D=Decision.
+ */
+function parseCelexType($celex) {
+    if (strlen($celex) < 6) return 'Other';
+    $typeChar = strtoupper(substr($celex, 5, 1));
+    switch ($typeChar) {
+        case 'R': return 'Regulation';
+        case 'L': return 'Directive';
+        case 'D': return 'Decision';
+        default:  return 'Other';
+    }
 }
 
 function refreshEmails($pdo) {

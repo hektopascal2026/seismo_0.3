@@ -205,6 +205,22 @@ function initDatabase() {
             throw $e;
         }
     }
+    
+    // Create lex_items table for EU legislation tracking
+    $pdo->exec("CREATE TABLE IF NOT EXISTS lex_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        celex VARCHAR(50) NOT NULL UNIQUE,
+        title TEXT,
+        document_date DATE DEFAULT NULL,
+        document_type VARCHAR(50) DEFAULT NULL,
+        eurlex_url VARCHAR(500) DEFAULT NULL,
+        work_uri VARCHAR(500) DEFAULT NULL,
+        fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_celex (celex),
+        INDEX idx_document_date (document_date),
+        INDEX idx_document_type (document_type)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 }
 
 /**
