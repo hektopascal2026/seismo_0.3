@@ -55,7 +55,7 @@ switch ($action) {
             if (!empty($selectedTags)) {
                 $placeholders = implode(',', array_fill(0, count($selectedTags), '?'));
                 $sql = "
-                    SELECT fi.*, f.title as feed_title 
+                    SELECT fi.*, f.title as feed_title, f.category as feed_category 
                     FROM feed_items fi
                     JOIN feeds f ON fi.feed_id = f.id
                     WHERE f.disabled = 0
@@ -70,7 +70,7 @@ switch ($action) {
             } elseif (!$tagsSubmitted) {
                 // First visit with no form submission: show all
                 $latestItemsStmt = $pdo->query("
-                    SELECT fi.*, f.title as feed_title 
+                    SELECT fi.*, f.title as feed_title, f.category as feed_category 
                     FROM feed_items fi
                     JOIN feeds f ON fi.feed_id = f.id
                     WHERE f.disabled = 0
@@ -105,7 +105,7 @@ switch ($action) {
         if (!empty($selectedSubstackTags)) {
             $placeholders = implode(',', array_fill(0, count($selectedSubstackTags), '?'));
             $substackItemsStmt = $pdo->prepare("
-                SELECT fi.*, f.title as feed_title
+                SELECT fi.*, f.title as feed_title, f.category as feed_category
                 FROM feed_items fi
                 JOIN feeds f ON fi.feed_id = f.id
                 WHERE f.source_type = 'substack' AND f.disabled = 0
@@ -118,7 +118,7 @@ switch ($action) {
         } elseif (!$tagsSubmitted) {
             // First visit: show all
             $substackItemsStmt = $pdo->query("
-                SELECT fi.*, f.title as feed_title
+                SELECT fi.*, f.title as feed_title, f.category as feed_category
                 FROM feed_items fi
                 JOIN feeds f ON fi.feed_id = f.id
                 WHERE f.source_type = 'substack' AND f.disabled = 0
@@ -228,7 +228,7 @@ switch ($action) {
         case 'ai_view_unified':
     // 1. Fetch RSS Items
     $latestItemsStmt = $pdo->query("
-        SELECT fi.*, f.title as feed_title 
+        SELECT fi.*, f.title as feed_title, f.category as feed_category 
         FROM feed_items fi
         JOIN feeds f ON fi.feed_id = f.id
         WHERE f.disabled = 0
@@ -304,7 +304,7 @@ switch ($action) {
         // Get RSS entries (from enabled RSS feeds only, filtered by category if selected)
         if ($selectedCategory) {
             $stmt = $pdo->prepare("
-                SELECT fi.*, f.title as feed_title
+                SELECT fi.*, f.title as feed_title, f.category as feed_category
                 FROM feed_items fi
                 JOIN feeds f ON fi.feed_id = f.id
                 WHERE f.disabled = 0 AND (f.source_type = 'rss' OR f.source_type IS NULL) AND f.category = ?
@@ -314,7 +314,7 @@ switch ($action) {
             $stmt->execute([$selectedCategory]);
         } else {
             $stmt = $pdo->query("
-                SELECT fi.*, f.title as feed_title
+                SELECT fi.*, f.title as feed_title, f.category as feed_category
                 FROM feed_items fi
                 JOIN feeds f ON fi.feed_id = f.id
                 WHERE f.disabled = 0 AND (f.source_type = 'rss' OR f.source_type IS NULL)
@@ -552,6 +552,7 @@ switch ($action) {
                         }
                     }
                     unset($email); // Break reference
+                    attachSenderTags($pdo, $emails);
                     
                     // Sort emails chronologically by date
                     usort($emails, function($a, $b) {
@@ -605,7 +606,7 @@ switch ($action) {
         // Get Substack entries (filtered by category if selected)
         if ($selectedSubstackCategory) {
             $stmt = $pdo->prepare("
-                SELECT fi.*, f.title as feed_title
+                SELECT fi.*, f.title as feed_title, f.category as feed_category
                 FROM feed_items fi
                 JOIN feeds f ON fi.feed_id = f.id
                 WHERE f.source_type = 'substack' AND f.disabled = 0 AND f.category = ?
@@ -615,7 +616,7 @@ switch ($action) {
             $stmt->execute([$selectedSubstackCategory]);
         } else {
             $stmt = $pdo->query("
-                SELECT fi.*, f.title as feed_title
+                SELECT fi.*, f.title as feed_title, f.category as feed_category
                 FROM feed_items fi
                 JOIN feeds f ON fi.feed_id = f.id
                 WHERE f.source_type = 'substack' AND f.disabled = 0
@@ -1413,6 +1414,7 @@ function getEmailsForIndex($pdo, $limit = 30, $selectedEmailTags = []) {
                 }
             }
             unset($email);
+            attachSenderTags($pdo, $emails);
         }
     } catch (PDOException $e) {
         // Error getting emails, return empty array
@@ -1586,6 +1588,7 @@ function searchEmails($pdo, $query, $limit = 100, $selectedEmailTags = []) {
                 }
             }
             unset($email);
+            attachSenderTags($pdo, $emails);
         }
     } catch (PDOException $e) {
         // Error searching emails, return empty array
@@ -1594,13 +1597,32 @@ function searchEmails($pdo, $query, $limit = 100, $selectedEmailTags = []) {
     return $emails;
 }
 
+function attachSenderTags($pdo, &$emails) {
+    if (empty($emails)) return;
+    // Build lookup map: from_email → tag
+    try {
+        $tagMapStmt = $pdo->query("SELECT from_email, tag FROM sender_tags WHERE removed_at IS NULL AND tag IS NOT NULL AND tag != ''");
+        $tagMap = [];
+        while ($row = $tagMapStmt->fetch()) {
+            $tagMap[strtolower($row['from_email'])] = $row['tag'];
+        }
+        foreach ($emails as &$email) {
+            $addr = strtolower(trim($email['from_email'] ?? ''));
+            $email['sender_tag'] = $tagMap[$addr] ?? null;
+        }
+        unset($email);
+    } catch (PDOException $e) {
+        // sender_tags table might not exist
+    }
+}
+
 function searchFeedItems($pdo, $query, $limit = 100, $selectedTags = []) {
     // Prepare search term with wildcards
     $searchTerm = '%' . $query . '%';
     
     // Base SQL: search in title, description, and content (only from enabled feeds)
     $sql = "
-        SELECT fi.*, f.title as feed_title 
+        SELECT fi.*, f.title as feed_title, f.category as feed_category 
         FROM feed_items fi
         JOIN feeds f ON fi.feed_id = f.id
         WHERE f.disabled = 0

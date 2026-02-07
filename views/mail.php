@@ -101,7 +101,12 @@
 
                     <div class="entry-card">
                         <div class="entry-header">
-                            <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($fromDisplay) ?></span>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($fromDisplay) ?></span>
+                                <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
+                                    <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($email['sender_tag']) ?></span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <h3 class="entry-title"><?= htmlspecialchars($subject) ?></h3>
                         <div class="entry-content entry-preview"><?= htmlspecialchars($bodyPreview) ?></div>
