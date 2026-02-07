@@ -877,6 +877,11 @@ switch ($action) {
         echo json_encode($tags);
         break;
         
+    case 'lex':
+        // Show Lex entries page (no database entries for now)
+        include 'views/lex.php';
+        break;
+    
     case 'styleguide':
         // Get last code change date (use modification time of index.php)
         $lastChangeDate = date('d.m.Y', filemtime(__FILE__));

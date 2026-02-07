@@ -123,6 +123,7 @@
                 Feed
             </a>
             <a href="?action=feeds" class="nav-link">RSS</a>
+            <a href="?action=lex" class="nav-link">Lex</a>
             <a href="?action=mail" class="nav-link">Mail</a>
             <a href="?action=substack" class="nav-link">Substack</a>
             <a href="?action=settings" class="nav-link active">Settings</a>
