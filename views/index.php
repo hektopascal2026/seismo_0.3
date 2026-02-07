@@ -130,13 +130,11 @@
                             $contentPreview = mb_substr($fullContent, 0, 200);
                             if (mb_strlen($fullContent) > 200) $contentPreview .= '...';
                             $hasMore = mb_strlen($fullContent) > 200;
+                            $feedTagColor = ($itemWrapper['type'] === 'substack') ? 'background-color: #C5B4D1; border-color: #a898b5;' : 'background-color: #add8e6; border-color: #8fc1d4;';
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
-                                <span class="entry-feed"><?= htmlspecialchars($item['feed_title']) ?></span>
-                                <?php if ($item['published_date']): ?>
-                                    <span class="entry-date"><?= date('d.m.Y H:i', strtotime($item['published_date'])) ?></span>
-                                <?php endif; ?>
+                                <span class="entry-tag" style="<?= $feedTagColor ?>"><?= htmlspecialchars($item['feed_title']) ?></span>
                             </div>
                             <h3 class="entry-title">
                                 <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener">
@@ -160,11 +158,16 @@
                                 <div class="entry-full-content" style="display:none"><?= htmlspecialchars($fullContent) ?></div>
                             <?php endif; ?>
                             <div class="entry-actions">
-                                <?php if ($item['link']): ?>
-                                    <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
-                                <?php endif; ?>
-                                <?php if ($hasMore): ?>
-                                    <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <?php if ($item['link']): ?>
+                                        <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
+                                    <?php endif; ?>
+                                    <?php if ($hasMore): ?>
+                                        <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ($item['published_date']): ?>
+                                    <span class="entry-date"><?= date('d.m.Y H:i', strtotime($item['published_date'])) ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -181,10 +184,8 @@
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
-                                <span class="entry-feed" style="background-color: #B2C2A2;"><?= $lexSourceEmoji ?> <?= htmlspecialchars($lexDocType) ?></span>
-                                <?php if ($lexDate): ?>
-                                    <span class="entry-date"><?= $lexDate ?></span>
-                                <?php endif; ?>
+                                <span class="entry-tag" style="background-color: #B2C2A2; border-color: #8fa87a;"><?= $lexSourceEmoji ?> <?= $lexSourceLabel ?></span>
+                                <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($lexDocType) ?></span>
                             </div>
                             <h3 class="entry-title">
                                 <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener">
@@ -196,8 +197,13 @@
                                 </a>
                             </h3>
                             <div class="entry-actions">
-                                <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($lexItem['celex'] ?? '') ?></span>
-                                <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener" class="entry-link"><?= $lexIsEu ? 'EUR-Lex →' : 'Fedlex →' ?></a>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($lexItem['celex'] ?? '') ?></span>
+                                    <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener" class="entry-link"><?= $lexIsEu ? 'EUR-Lex →' : 'Fedlex →' ?></a>
+                                </div>
+                                <?php if ($lexDate): ?>
+                                    <span class="entry-date"><?= $lexDate ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php else: ?>
@@ -224,10 +230,7 @@
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
-                                <span class="entry-feed"><?= htmlspecialchars($fromDisplay) ?></span>
-                                <?php if ($createdAt): ?>
-                                    <span class="entry-date"><?= htmlspecialchars($createdAt) ?></span>
-                                <?php endif; ?>
+                                <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($fromDisplay) ?></span>
                             </div>
                             <h3 class="entry-title">
                                 <?php if (!empty($searchQuery)): ?>
@@ -246,11 +249,16 @@
                                 ?>
                             </div>
                             <div class="entry-full-content" style="display:none"><?= htmlspecialchars($body) ?></div>
-                            <?php if ($hasMore): ?>
-                                <div class="entry-actions">
-                                    <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                            <div class="entry-actions">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <?php if ($hasMore): ?>
+                                        <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                    <?php endif; ?>
                                 </div>
-                            <?php endif; ?>
+                                <?php if ($createdAt): ?>
+                                    <span class="entry-date"><?= htmlspecialchars($createdAt) ?></span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>

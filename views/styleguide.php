@@ -271,12 +271,13 @@
         <section class="styleguide-section">
             <h2>Cards</h2>
             <p>2px black border, 14px 16px padding. Hover adds <code>box-shadow: 2px 2px 0px #000000</code> without changing size.</p>
+            <p>Layout: <strong>top-left</strong> = source tag (<code>.entry-tag</code>, 1px border, colored bg), <strong>top-right</strong> = context (if applicable, e.g. document type for Lex). <strong>Bottom-left</strong> = actions/links, <strong>bottom-right</strong> = date.</p>
             
+            <h3>RSS Card</h3>
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <span class="entry-feed">Source Name</span>
-                        <span class="entry-date">24.01.2026 12:00</span>
+                        <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;">Source Name</span>
                     </div>
                     <h3 class="entry-title">
                         <a href="#">Entry Title Example</a>
@@ -284,10 +285,65 @@
                     <div class="entry-content entry-preview">
                         Preview text truncated to 200 characters. Cards display feed items, emails, and Substack posts with consistent styling across all pages...
                     </div>
-                    <div class="entry-full-content" style="display:none">Full expanded content shown when the user clicks expand. This replaces the preview and shows the complete text in a pre-wrapped format that preserves line breaks. The content area uses the same font size and color as the preview.</div>
+                    <div class="entry-full-content" style="display:none">Full expanded content shown when the user clicks expand. This replaces the preview and shows the complete text in a pre-wrapped format that preserves line breaks.</div>
                     <div class="entry-actions">
-                        <a href="#" class="entry-link">Read more &rarr;</a>
-                        <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <a href="#" class="entry-link">Read more &rarr;</a>
+                            <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                        </div>
+                        <span class="entry-date">24.01.2026 12:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Email Card</h3>
+            <div class="component-demo">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;">Sender Name</span>
+                    </div>
+                    <h3 class="entry-title">Email Subject Line</h3>
+                    <div class="entry-content entry-preview">Email body preview truncated to 200 chars…</div>
+                    <div class="entry-actions">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                        </div>
+                        <span class="entry-date">24.01.2026 12:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Substack Card</h3>
+            <div class="component-demo">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <span class="entry-tag" style="background-color: #C5B4D1; border-color: #a898b5;">Newsletter Name</span>
+                    </div>
+                    <h3 class="entry-title"><a href="#">Substack Post Title</a></h3>
+                    <div class="entry-content entry-preview">Post content preview…</div>
+                    <div class="entry-actions">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <a href="#" class="entry-link">Read more &rarr;</a>
+                        </div>
+                        <span class="entry-date">24.01.2026 12:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Lex Card</h3>
+            <div class="component-demo">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <span class="entry-tag" style="background-color: #B2C2A2; border-color: #8fa87a;">🇨🇭 CH</span>
+                        <span class="entry-tag" style="background-color: #f5f5f5;">Bundesgesetz</span>
+                    </div>
+                    <h3 class="entry-title"><a href="#">Bundesgesetz über die Beispielregelung</a></h3>
+                    <div class="entry-actions">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 13px; color: #666666; font-family: monospace;">eli/fga/2025/1234</span>
+                            <a href="#" class="entry-link">Fedlex &rarr;</a>
+                        </div>
+                        <span class="entry-date">17.12.2026</span>
                     </div>
                 </div>
             </div>
@@ -462,7 +518,7 @@
                 <p>Hover the card and button below:</p>
                 <div class="entry-card" style="max-width: 400px; margin: 16px 0;">
                     <div class="entry-header">
-                        <span class="entry-feed">Card hover</span>
+                        <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;">Card hover</span>
                     </div>
                     <h3 class="entry-title"><a href="#">Shadow appears on hover</a></h3>
                 </div>

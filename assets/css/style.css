@@ -255,6 +255,14 @@ h3 {
     color: #000000;
 }
 
+.entry-tag {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border: 1px solid #000000;
+    display: inline-block;
+}
+
 .entry-date,
 .item-author {
     font-style: italic;
@@ -466,6 +474,7 @@ h3 {
 
 .entry-actions {
     display: flex;
+    justify-content: space-between;
     gap: 10px;
     align-items: center;
     margin-top: 4px;

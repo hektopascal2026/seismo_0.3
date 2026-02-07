@@ -101,23 +101,27 @@
 
                     <div class="entry-card">
                         <div class="entry-header">
-                            <span class="entry-feed"><?= htmlspecialchars($fromDisplay) ?></span>
-                            <span class="entry-date"><?= htmlspecialchars($createdAt) ?></span>
+                            <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($fromDisplay) ?></span>
                         </div>
                         <h3 class="entry-title"><?= htmlspecialchars($subject) ?></h3>
                         <div class="entry-content entry-preview"><?= htmlspecialchars($bodyPreview) ?></div>
                         <div class="entry-full-content" style="display:none"><?= htmlspecialchars($body) ?></div>
                         <div class="entry-actions">
-                            <?php if ($hasMore): ?>
-                                <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
-                            <?php endif; ?>
-                            <?php if (isset($email['id'])): ?>
-                                <a href="?action=delete_email&id=<?= (int)$email['id'] ?>&confirm=yes" 
-                                   class="btn btn-danger" 
-                                   onclick="return confirm('Are you sure you want to delete this email? This action cannot be undone.');"
-                                   style="font-size: 14px; padding: 8px 16px;">
-                                    Delete Email
-                                </a>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <?php if ($hasMore): ?>
+                                    <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                <?php endif; ?>
+                                <?php if (isset($email['id'])): ?>
+                                    <a href="?action=delete_email&id=<?= (int)$email['id'] ?>&confirm=yes" 
+                                       class="btn btn-danger" 
+                                       onclick="return confirm('Are you sure you want to delete this email? This action cannot be undone.');"
+                                       style="font-size: 14px; padding: 8px 16px;">
+                                        Delete Email
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($createdAt): ?>
+                                <span class="entry-date"><?= htmlspecialchars($createdAt) ?></span>
                             <?php endif; ?>
                         </div>
                     </div>

@@ -64,26 +64,30 @@
                 </div>
             <?php else: ?>
                 <?php foreach ($items as $item): ?>
-                    <article class="item-card">
-                        <h3 class="item-title">
+                    <article class="entry-card">
+                        <div class="entry-header">
+                            <?php if ($item['author']): ?>
+                                <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;"><?= htmlspecialchars($item['author']) ?></span>
+                            <?php else: ?>
+                                <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;"><?= htmlspecialchars($feed['title']) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <h3 class="entry-title">
                             <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener">
                                 <?= htmlspecialchars($item['title']) ?>
                             </a>
                         </h3>
-                        <div class="item-meta">
-                            <?php if ($item['published_date']): ?>
-                                <span class="item-date"><?= date('M j, Y g:i A', strtotime($item['published_date'])) ?></span>
-                            <?php endif; ?>
-                            <?php if ($item['author']): ?>
-                                <span class="item-author">by <?= htmlspecialchars($item['author']) ?></span>
-                            <?php endif; ?>
-                        </div>
                         <?php if ($item['description'] || $item['content']): ?>
-                            <div class="item-content">
+                            <div class="entry-content">
                                 <?= $item['content'] ?: strip_tags($item['description'], '<p><a><strong><em><br>') ?>
                             </div>
                         <?php endif; ?>
-                        <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="item-link">Read more →</a>
+                        <div class="entry-actions">
+                            <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
+                            <?php if ($item['published_date']): ?>
+                                <span class="entry-date"><?= date('d.m.Y H:i', strtotime($item['published_date'])) ?></span>
+                            <?php endif; ?>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             <?php endif; ?>

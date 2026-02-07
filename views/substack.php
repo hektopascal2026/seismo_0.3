@@ -96,10 +96,7 @@
                     ?>
                     <div class="entry-card">
                         <div class="entry-header">
-                            <span class="entry-feed"><?= htmlspecialchars($item['feed_title']) ?></span>
-                            <?php if ($item['published_date']): ?>
-                                <span class="entry-date"><?= date('d.m.Y H:i', strtotime($item['published_date'])) ?></span>
-                            <?php endif; ?>
+                            <span class="entry-tag" style="background-color: #C5B4D1; border-color: #a898b5;"><?= htmlspecialchars($item['feed_title']) ?></span>
                         </div>
                         <h3 class="entry-title">
                             <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener">
@@ -111,11 +108,16 @@
                             <div class="entry-full-content" style="display:none"><?= htmlspecialchars($fullContent) ?></div>
                         <?php endif; ?>
                         <div class="entry-actions">
-                            <?php if ($item['link']): ?>
-                                <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
-                            <?php endif; ?>
-                            <?php if ($hasMore): ?>
-                                <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <?php if ($item['link']): ?>
+                                    <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
+                                <?php endif; ?>
+                                <?php if ($hasMore): ?>
+                                    <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($item['published_date']): ?>
+                                <span class="entry-date"><?= date('d.m.Y H:i', strtotime($item['published_date'])) ?></span>
                             <?php endif; ?>
                         </div>
                     </div>

@@ -94,38 +94,31 @@
                         $itemUrl = htmlspecialchars($item['eurlex_url'] ?? '#');
                         $linkLabel = $isEu ? 'EUR-Lex →' : 'Fedlex →';
                     ?>
-                    <div class="entry-card" style="position: relative;">
-                        <!-- Top row: source tag left, document type right -->
+                    <div class="entry-card">
                         <div class="entry-header">
                             <?php if ($showSourceTag): ?>
-                                <span style="font-size: 12px; font-weight: 600; padding: 2px 8px; background-color: #B2C2A2; border: 1px solid #8fa87a;">
+                                <span class="entry-tag" style="background-color: #B2C2A2; border-color: #8fa87a;">
                                     <?= $sourceEmoji ?> <?= $sourceLabel ?>
                                 </span>
                             <?php else: ?>
                                 <span></span>
                             <?php endif; ?>
-                            <span style="font-size: 12px; font-weight: 600; padding: 2px 8px; border: 1px solid #000000; background-color: #f5f5f5;">
+                            <span class="entry-tag" style="background-color: #f5f5f5;">
                                 <?= $docType ?>
                             </span>
                         </div>
-                        
-                        <!-- Title -->
                         <h3 class="entry-title">
                             <a href="<?= $itemUrl ?>" target="_blank" rel="noopener">
                                 <?= htmlspecialchars($item['title']) ?>
                             </a>
                         </h3>
-                        
-                        <!-- Bottom row: identifier left, date right -->
-                        <div class="entry-actions" style="justify-content: space-between;">
+                        <div class="entry-actions">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($item['celex']) ?></span>
                                 <a href="<?= $itemUrl ?>" target="_blank" rel="noopener" class="entry-link"><?= $linkLabel ?></a>
                             </div>
                             <?php if ($item['document_date']): ?>
-                                <span style="font-size: 13px; color: #666666; font-style: italic;">
-                                    <?= date('d.m.Y', strtotime($item['document_date'])) ?>
-                                </span>
+                                <span class="entry-date"><?= date('d.m.Y', strtotime($item['document_date'])) ?></span>
                             <?php endif; ?>
                         </div>
                     </div>
