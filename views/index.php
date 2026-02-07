@@ -56,7 +56,7 @@
                     <a href="?action=index" class="btn btn-secondary">Clear</a>
                 <?php endif; ?>
 
-                <?php if (!empty($tags) || !empty($emailTags) || !empty($substackTags)): ?>
+                <?php if (!empty($tags) || !empty($emailTags) || !empty($substackTags) || !empty($selectedLexSources)): ?>
                     <div class="tag-filter-section">
                         <div class="tag-filter-list">
                             <?php foreach ($tags as $tag): ?>
@@ -80,6 +80,18 @@
                                     <span><?= htmlspecialchars($tag) ?></span>
                                 </label>
                             <?php endforeach; ?>
+                            <?php
+                                $lexEuSelected = !empty($selectedLexSources) && in_array('eu', $selectedLexSources, true);
+                                $lexChSelected = !empty($selectedLexSources) && in_array('ch', $selectedLexSources, true);
+                            ?>
+                            <label class="tag-filter-pill<?= $lexEuSelected ? ' tag-filter-pill-active' : '' ?>"<?= $lexEuSelected ? ' style="background-color: #B2C2A2;"' : '' ?>>
+                                <input type="checkbox" name="lex_sources[]" value="eu" <?= $lexEuSelected ? 'checked' : '' ?> onchange="this.form.submit()">
+                                <span>🇪🇺 EU Lex</span>
+                            </label>
+                            <label class="tag-filter-pill<?= $lexChSelected ? ' tag-filter-pill-active' : '' ?>"<?= $lexChSelected ? ' style="background-color: #B2C2A2;"' : '' ?>>
+                                <input type="checkbox" name="lex_sources[]" value="ch" <?= $lexChSelected ? 'checked' : '' ?> onchange="this.form.submit()">
+                                <span>🇨🇭 CH Lex</span>
+                            </label>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -154,6 +166,38 @@
                                 <?php if ($hasMore): ?>
                                     <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
                                 <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php elseif ($itemWrapper['type'] === 'lex'): ?>
+                        <?php $lexItem = $itemWrapper['data']; ?>
+                        <?php
+                            $lexSource = $lexItem['source'] ?? 'eu';
+                            $lexIsEu = ($lexSource === 'eu');
+                            $lexSourceEmoji = $lexIsEu ? '🇪🇺' : '🇨🇭';
+                            $lexSourceLabel = $lexIsEu ? 'EU' : 'CH';
+                            $lexDocType = $lexItem['document_type'] ?? 'Legislation';
+                            $lexUrl = $lexItem['eurlex_url'] ?? '#';
+                            $lexDate = $lexItem['document_date'] ? date('d.m.Y', strtotime($lexItem['document_date'])) : '';
+                        ?>
+                        <div class="entry-card">
+                            <div class="entry-header">
+                                <span class="entry-feed" style="background-color: #B2C2A2;"><?= $lexSourceEmoji ?> <?= htmlspecialchars($lexDocType) ?></span>
+                                <?php if ($lexDate): ?>
+                                    <span class="entry-date"><?= $lexDate ?></span>
+                                <?php endif; ?>
+                            </div>
+                            <h3 class="entry-title">
+                                <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener">
+                                    <?php if (!empty($searchQuery)): ?>
+                                        <?= highlightSearchTerm($lexItem['title'], $searchQuery) ?>
+                                    <?php else: ?>
+                                        <?= htmlspecialchars($lexItem['title']) ?>
+                                    <?php endif; ?>
+                                </a>
+                            </h3>
+                            <div class="entry-actions">
+                                <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($lexItem['celex'] ?? '') ?></span>
+                                <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener" class="entry-link"><?= $lexIsEu ? 'EUR-Lex →' : 'Fedlex →' ?></a>
                             </div>
                         </div>
                     <?php else: ?>

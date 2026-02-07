@@ -36,11 +36,13 @@ switch ($action) {
             $selectedTags = isset($_GET['tags']) ? array_values(array_filter((array)$_GET['tags'], 'strlen')) : [];
             $selectedEmailTags = isset($_GET['email_tags']) ? array_values(array_filter((array)$_GET['email_tags'], 'strlen')) : [];
             $selectedSubstackTags = isset($_GET['substack_tags']) ? array_values(array_filter((array)$_GET['substack_tags'], 'strlen')) : [];
+            $selectedLexSources = isset($_GET['lex_sources']) ? array_values(array_filter((array)$_GET['lex_sources'], 'strlen')) : [];
         } else {
             // First visit: auto-select all tags except "unsortiert"
             $selectedTags = array_values(array_filter($tags, function($t) { return $t !== 'unsortiert'; }));
             $selectedEmailTags = array_values(array_filter($emailTags, function($t) { return $t !== 'unsortiert' && $t !== 'unclassified'; }));
             $selectedSubstackTags = $substackTags; // select all by default
+            $selectedLexSources = ['eu', 'ch']; // both active by default
         }
         
         // If search query exists, show search results instead of latest items
@@ -129,6 +131,34 @@ switch ($action) {
             $substackItems = [];
         }
         
+        // Fetch Lex items (EU + CH legislation), filtered by selected lex sources
+        $lexItems = [];
+        try {
+            if (!empty($selectedLexSources)) {
+                $lexPlaceholders = implode(',', array_fill(0, count($selectedLexSources), '?'));
+                $lexStmt = $pdo->prepare("
+                    SELECT * FROM lex_items
+                    WHERE source IN ($lexPlaceholders)
+                    ORDER BY document_date DESC
+                    LIMIT 30
+                ");
+                $lexStmt->execute($selectedLexSources);
+                $lexItems = $lexStmt->fetchAll();
+            } elseif (!$tagsSubmitted) {
+                // First visit: show all
+                $lexStmt = $pdo->query("
+                    SELECT * FROM lex_items
+                    ORDER BY document_date DESC
+                    LIMIT 30
+                ");
+                $lexItems = $lexStmt->fetchAll();
+            }
+            // else: user explicitly deselected all lex sources → $lexItems stays empty
+        } catch (PDOException $e) {
+            // lex_items table might not exist yet — silently skip
+            $lexItems = [];
+        }
+        
         // Merge and sort by date
         $allItems = [];
         
@@ -159,6 +189,16 @@ switch ($action) {
                 'type' => 'email',
                 'date' => $dateValue ? strtotime($dateValue) : 0,
                 'data' => $email
+            ];
+        }
+        
+        // Add Lex items (EU + CH legislation)
+        foreach ($lexItems as $lexItem) {
+            $dateValue = $lexItem['document_date'] ?? $lexItem['created_at'] ?? null;
+            $allItems[] = [
+                'type' => 'lex',
+                'date' => $dateValue ? strtotime($dateValue) : 0,
+                'data' => $lexItem
             ];
         }
         
