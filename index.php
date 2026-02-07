@@ -922,25 +922,32 @@ switch ($action) {
         include 'views/lex.php';
         break;
     
-    case 'refresh_lex':
-        // Refresh Lex items from EU CELLAR SPARQL endpoint
+    case 'refresh_all_lex':
+        // Refresh Lex items from both EU CELLAR and Fedlex SPARQL endpoints
+        $messages = [];
+        $errors = [];
+        
         try {
-            $count = refreshLexItems($pdo);
-            $_SESSION['success'] = "EU Lex refreshed: $count legislation items fetched from EUR-Lex.";
+            $countEu = refreshLexItems($pdo);
+            $messages[] = "🇪🇺 $countEu items from EUR-Lex";
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Error refreshing EU Lex: ' . $e->getMessage();
+            $errors[] = '🇪🇺 EU: ' . $e->getMessage();
         }
-        header('Location: ?action=lex');
-        break;
-    
-    case 'refresh_fedlex':
-        // Refresh Lex items from Fedlex SPARQL endpoint (Swiss legislation)
+        
         try {
-            $count = refreshFedlexItems($pdo);
-            $_SESSION['success'] = "Fedlex refreshed: $count legislation items fetched from fedlex.data.admin.ch.";
+            $countCh = refreshFedlexItems($pdo);
+            $messages[] = "🇨🇭 $countCh items from Fedlex";
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Error refreshing Fedlex: ' . $e->getMessage();
+            $errors[] = '🇨🇭 CH: ' . $e->getMessage();
         }
+        
+        if (!empty($messages)) {
+            $_SESSION['success'] = 'Lex refreshed: ' . implode(', ', $messages) . '.';
+        }
+        if (!empty($errors)) {
+            $_SESSION['error'] = 'Errors: ' . implode(' | ', $errors);
+        }
+        
         header('Location: ?action=lex');
         break;
     

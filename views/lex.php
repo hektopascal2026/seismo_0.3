@@ -134,10 +134,7 @@
         </div>
     </div>
 
-    <!-- Floating Refresh Buttons -->
-    <div style="position: fixed; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 1000;">
-        <a href="?action=refresh_lex" class="floating-refresh-btn" title="Fetch latest EU legislation from EUR-Lex CELLAR">🇪🇺 Refresh EU</a>
-        <a href="?action=refresh_fedlex" class="floating-refresh-btn" title="Fetch latest Swiss legislation from Fedlex">🇨🇭 Refresh CH</a>
-    </div>
+    <!-- Floating Refresh Button -->
+    <a href="?action=refresh_all_lex" class="floating-refresh-btn" title="Fetch latest legislation from EU CELLAR and Fedlex">Refresh</a>
 </body>
 </html>
