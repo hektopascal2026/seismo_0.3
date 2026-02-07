@@ -206,21 +206,46 @@ function initDatabase() {
         }
     }
     
-    // Create lex_items table for EU legislation tracking
+    // Create lex_items table for EU + CH legislation tracking
     $pdo->exec("CREATE TABLE IF NOT EXISTS lex_items (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        celex VARCHAR(50) NOT NULL UNIQUE,
+        celex VARCHAR(100) NOT NULL UNIQUE,
         title TEXT,
         document_date DATE DEFAULT NULL,
-        document_type VARCHAR(50) DEFAULT NULL,
+        document_type VARCHAR(100) DEFAULT NULL,
         eurlex_url VARCHAR(500) DEFAULT NULL,
         work_uri VARCHAR(500) DEFAULT NULL,
+        source VARCHAR(10) DEFAULT 'eu',
         fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_celex (celex),
         INDEX idx_document_date (document_date),
-        INDEX idx_document_type (document_type)
+        INDEX idx_document_type (document_type),
+        INDEX idx_source (source)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    
+    // Add source column to lex_items if it doesn't exist (for existing installations)
+    try {
+        $pdo->exec("ALTER TABLE lex_items ADD COLUMN source VARCHAR(10) DEFAULT 'eu' AFTER work_uri");
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'Duplicate column name') === false) {
+            throw $e;
+        }
+    }
+    
+    // Add source index if it doesn't exist
+    try {
+        $pdo->exec("CREATE INDEX idx_source ON lex_items(source)");
+    } catch (PDOException $e) {
+        // Index might already exist, ignore
+    }
+    
+    // Widen celex column to support longer Fedlex ELI identifiers
+    try {
+        $pdo->exec("ALTER TABLE lex_items MODIFY COLUMN celex VARCHAR(100) NOT NULL");
+    } catch (PDOException $e) {
+        // Ignore if it fails
+    }
 }
 
 /**

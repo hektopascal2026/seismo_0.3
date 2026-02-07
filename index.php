@@ -878,15 +878,38 @@ switch ($action) {
         break;
         
     case 'lex':
-        // Show Lex entries page — EU legislation via SPARQL
+        // Show Lex entries page — EU + CH legislation via SPARQL
         $lexItems = [];
         $lastLexRefreshDate = null;
         
+        // Determine active sources from query params (default: both active)
+        $sourcesSubmitted = isset($_GET['sources_submitted']);
+        if ($sourcesSubmitted) {
+            $activeSources = isset($_GET['sources']) ? (array)$_GET['sources'] : [];
+        } else {
+            $activeSources = ['eu', 'ch']; // Both active by default
+        }
+        
         try {
-            $stmt = $pdo->query("SELECT * FROM lex_items ORDER BY document_date DESC LIMIT 50");
-            $lexItems = $stmt->fetchAll();
+            if (!empty($activeSources)) {
+                $placeholders = implode(',', array_fill(0, count($activeSources), '?'));
+                $stmt = $pdo->prepare("SELECT * FROM lex_items WHERE source IN ($placeholders) ORDER BY document_date DESC LIMIT 50");
+                $stmt->execute($activeSources);
+                $lexItems = $stmt->fetchAll();
+            }
             
-            // Get last refresh date
+            // Get last refresh dates per source
+            $lastRefreshEuStmt = $pdo->query("SELECT MAX(fetched_at) as last_refresh FROM lex_items WHERE source = 'eu'");
+            $lastRefreshEuRow = $lastRefreshEuStmt->fetch();
+            $lastLexRefreshDateEu = ($lastRefreshEuRow && $lastRefreshEuRow['last_refresh']) 
+                ? date('d.m.Y H:i', strtotime($lastRefreshEuRow['last_refresh'])) : null;
+            
+            $lastRefreshChStmt = $pdo->query("SELECT MAX(fetched_at) as last_refresh FROM lex_items WHERE source = 'ch'");
+            $lastRefreshChRow = $lastRefreshChStmt->fetch();
+            $lastLexRefreshDateCh = ($lastRefreshChRow && $lastRefreshChRow['last_refresh']) 
+                ? date('d.m.Y H:i', strtotime($lastRefreshChRow['last_refresh'])) : null;
+            
+            // Combined last refresh
             $lastRefreshStmt = $pdo->query("SELECT MAX(fetched_at) as last_refresh FROM lex_items");
             $lastRefreshRow = $lastRefreshStmt->fetch();
             if ($lastRefreshRow && $lastRefreshRow['last_refresh']) {
@@ -903,9 +926,20 @@ switch ($action) {
         // Refresh Lex items from EU CELLAR SPARQL endpoint
         try {
             $count = refreshLexItems($pdo);
-            $_SESSION['success'] = "Lex refreshed: $count legislation items fetched from EUR-Lex.";
+            $_SESSION['success'] = "EU Lex refreshed: $count legislation items fetched from EUR-Lex.";
         } catch (Exception $e) {
-            $_SESSION['error'] = 'Error refreshing Lex: ' . $e->getMessage();
+            $_SESSION['error'] = 'Error refreshing EU Lex: ' . $e->getMessage();
+        }
+        header('Location: ?action=lex');
+        break;
+    
+    case 'refresh_fedlex':
+        // Refresh Lex items from Fedlex SPARQL endpoint (Swiss legislation)
+        try {
+            $count = refreshFedlexItems($pdo);
+            $_SESSION['success'] = "Fedlex refreshed: $count legislation items fetched from fedlex.data.admin.ch.";
+        } catch (Exception $e) {
+            $_SESSION['error'] = 'Error refreshing Fedlex: ' . $e->getMessage();
         }
         header('Location: ?action=lex');
         break;
@@ -1847,14 +1881,15 @@ function refreshLexItems($pdo) {
     
     $count = 0;
     $insertStmt = $pdo->prepare("
-        INSERT INTO lex_items (celex, title, document_date, document_type, eurlex_url, work_uri)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO lex_items (celex, title, document_date, document_type, eurlex_url, work_uri, source)
+        VALUES (?, ?, ?, ?, ?, ?, 'eu')
         ON DUPLICATE KEY UPDATE
             title = VALUES(title),
             document_date = VALUES(document_date),
             document_type = VALUES(document_type),
             eurlex_url = VALUES(eurlex_url),
             work_uri = VALUES(work_uri),
+            source = 'eu',
             fetched_at = NOW()
     ");
     
@@ -1888,6 +1923,114 @@ function parseCelexType($celex) {
         case 'D': return 'Decision';
         default:  return 'Other';
     }
+}
+
+/**
+ * Refresh Lex items from the Fedlex SPARQL endpoint (Swiss federal legislation).
+ * Queries for recent Acts (Bundesgesetze, Verordnungen, Bundesbeschlüsse, etc.).
+ */
+function refreshFedlexItems($pdo) {
+    // Determine "since" date: last CH fetch minus 7 days overlap, or 90 days ago on first run
+    $sinceDate = date('Y-m-d', strtotime('-90 days'));
+    try {
+        $lastFetchStmt = $pdo->query("SELECT MAX(fetched_at) as last_fetch FROM lex_items WHERE source = 'ch'");
+        $lastFetchRow = $lastFetchStmt->fetch();
+        if ($lastFetchRow && $lastFetchRow['last_fetch']) {
+            $sinceDate = date('Y-m-d', strtotime($lastFetchRow['last_fetch'] . ' -7 days'));
+        }
+    } catch (PDOException $e) {
+        // Table might not exist yet, use default
+    }
+    
+    // Resource types to fetch (key legislation types):
+    // 21=Bundesgesetz, 22=Dringliches Bundesgesetz, 29=Verordnung BR,
+    // 26=Departementsverordnung, 27=Amtsverordnung, 28=Verordnung BV,
+    // 8=Einfacher Bundesbeschluss, 9=Bundesbeschluss fak. Ref., 10=Bundesbeschluss obl. Ref.,
+    // 31=Bilateral Treaty, 32=Multilateral Treaty
+    $typeFilter = implode(', ', array_map(function($n) {
+        return '<https://fedlex.data.admin.ch/vocabulary/resource-type/' . $n . '>';
+    }, [21, 22, 29, 26, 27, 28, 8, 9, 10, 31, 32]));
+    
+    $sparqlQuery = '
+        PREFIX jolux: <http://data.legilux.public.lu/resource/ontology/jolux#>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        
+        SELECT DISTINCT ?act ?title ?dateDoc ?typeDoc
+        WHERE {
+            ?act a jolux:Act .
+            ?act jolux:dateDocument ?dateDoc .
+            ?act jolux:typeDocument ?typeDoc .
+            ?act jolux:isRealizedBy ?expr .
+            ?expr jolux:title ?title .
+            ?expr jolux:language <http://publications.europa.eu/resource/authority/language/DEU> .
+            FILTER(?typeDoc IN (' . $typeFilter . '))
+            FILTER(?dateDoc >= "' . $sinceDate . '"^^xsd:date && ?dateDoc <= "' . date('Y-m-d', strtotime('+1 year')) . '"^^xsd:date)
+        }
+        ORDER BY DESC(?dateDoc)
+        LIMIT 100
+    ';
+    
+    $sparql = new \EasyRdf\Sparql\Client('https://fedlex.data.admin.ch/sparqlendpoint');
+    $results = $sparql->query($sparqlQuery);
+    
+    $count = 0;
+    $insertStmt = $pdo->prepare("
+        INSERT INTO lex_items (celex, title, document_date, document_type, eurlex_url, work_uri, source)
+        VALUES (?, ?, ?, ?, ?, ?, 'ch')
+        ON DUPLICATE KEY UPDATE
+            title = VALUES(title),
+            document_date = VALUES(document_date),
+            document_type = VALUES(document_type),
+            eurlex_url = VALUES(eurlex_url),
+            work_uri = VALUES(work_uri),
+            source = 'ch',
+            fetched_at = NOW()
+    ");
+    
+    foreach ($results as $row) {
+        $actUri  = (string) $row->act;
+        $title   = (string) $row->title;
+        $dateDoc = (string) $row->dateDoc;
+        $typeDoc = (string) $row->typeDoc;
+        
+        // Use the ELI path as the unique identifier (e.g. "eli/oc/2025/123")
+        $eliId = str_replace('https://fedlex.data.admin.ch/', '', $actUri);
+        
+        $docType = parseFedlexType($typeDoc);
+        
+        // Build the browsable Fedlex URL (German version)
+        $fedlexUrl = 'https://www.fedlex.admin.ch/' . $eliId . '/de';
+        
+        $insertStmt->execute([$eliId, $title, $dateDoc, $docType, $fedlexUrl, $actUri]);
+        $count++;
+    }
+    
+    return $count;
+}
+
+/**
+ * Parse the document type from a Fedlex resource-type URI.
+ * E.g. https://fedlex.data.admin.ch/vocabulary/resource-type/21 → "Bundesgesetz"
+ */
+function parseFedlexType($typeUri) {
+    $map = [
+        '21' => 'Bundesgesetz',
+        '22' => 'Dringl. Bundesgesetz',
+        '29' => 'Verordnung BR',
+        '26' => 'Departementsverordnung',
+        '27' => 'Amtsverordnung',
+        '28' => 'Verordnung BV',
+        '8'  => 'Bundesbeschluss',
+        '9'  => 'Bundesbeschluss',
+        '10' => 'Bundesbeschluss',
+        '31' => 'Bilateral Treaty',
+        '32' => 'Multilateral Treaty',
+    ];
+    
+    if (preg_match('/resource-type\/(\d+)$/', $typeUri, $m)) {
+        return $map[$m[1]] ?? 'Other';
+    }
+    return 'Other';
 }
 
 function refreshEmails($pdo) {
