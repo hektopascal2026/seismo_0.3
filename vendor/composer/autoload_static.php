@@ -12,6 +12,10 @@ class ComposerStaticInit9e8120918fe96328e0460216dabeb9dd
             'SimplePie\\' => 10,
             'Seismo\\' => 7,
         ),
+        'E' =>
+        array (
+            'EasyRdf\\' => 8,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -22,6 +26,10 @@ class ComposerStaticInit9e8120918fe96328e0460216dabeb9dd
         'Seismo\\' =>
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'EasyRdf\\' =>
+        array (
+            0 => __DIR__ . '/..' . '/easyrdf/easyrdf/lib',
         ),
     );
 

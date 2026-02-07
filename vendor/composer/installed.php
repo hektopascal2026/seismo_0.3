@@ -3,13 +3,22 @@
         'name' => 'seismo/rss-reader',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '8a796c19341fac6af69a2c5c1c482f9fade786d4',
+        'reference' => '15c3f9398393d5194cd2e26c57953e55d79d9508',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => true,
     ),
     'versions' => array(
+        'easyrdf/easyrdf' => array(
+            'pretty_version' => '1.1.1',
+            'version' => '1.1.1.0',
+            'reference' => 'c7b0a9dbcb211eb7de03ee99ff5b52d17f2a8e64',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../easyrdf/easyrdf',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'php-mime-mail-parser/php-mime-mail-parser' => array(
             'pretty_version' => 'v1.0.0',
             'version' => '1.0.0.0',
@@ -22,7 +31,7 @@
         'seismo/rss-reader' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '8a796c19341fac6af69a2c5c1c482f9fade786d4',
+            'reference' => '15c3f9398393d5194cd2e26c57953e55d79d9508',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -8,4 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'SimplePie\\' => array($vendorDir . '/simplepie/simplepie/src'),
     'Seismo\\' => array($baseDir . '/src'),
+    'EasyRdf\\' => array($vendorDir . '/easyrdf/easyrdf/lib'),
 );
