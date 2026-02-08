@@ -2024,18 +2024,18 @@ function refreshFedlexItems($pdo) {
         PREFIX jolux: <http://data.legilux.public.lu/resource/ontology/jolux#>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         
-        SELECT DISTINCT ?act ?title ?dateDoc ?typeDoc
+        SELECT DISTINCT ?act ?title ?pubDate ?typeDoc
         WHERE {
             ?act a jolux:Act .
-            ?act jolux:dateDocument ?dateDoc .
+            ?act jolux:publicationDate ?pubDate .
             ?act jolux:typeDocument ?typeDoc .
             ?act jolux:isRealizedBy ?expr .
             ?expr jolux:title ?title .
             ?expr jolux:language <http://publications.europa.eu/resource/authority/language/DEU> .
             FILTER(?typeDoc IN (' . $typeFilter . '))
-            FILTER(?dateDoc >= "' . $sinceDate . '"^^xsd:date && ?dateDoc <= "' . date('Y-m-d', strtotime('+1 year')) . '"^^xsd:date)
+            FILTER(?pubDate >= "' . $sinceDate . '"^^xsd:date && ?pubDate <= "' . date('Y-m-d', strtotime('+1 year')) . '"^^xsd:date)
         }
-        ORDER BY DESC(?dateDoc)
+        ORDER BY DESC(?pubDate)
         LIMIT 100
     ';
     
@@ -2059,7 +2059,7 @@ function refreshFedlexItems($pdo) {
     foreach ($results as $row) {
         $actUri  = (string) $row->act;
         $title   = (string) $row->title;
-        $dateDoc = (string) $row->dateDoc;
+        $dateDoc = (string) $row->pubDate;
         $typeDoc = (string) $row->typeDoc;
         
         // Use the ELI path as the unique identifier (e.g. "eli/oc/2025/123")
