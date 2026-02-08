@@ -109,8 +109,7 @@ body {
 }
 
 .top-bar-btn:hover {
-    background: #000000;
-    color: #ffffff;
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .top-bar-btn.active {
@@ -152,7 +151,7 @@ body {
 }
 
 .nav-link:hover {
-    background-color: #f5f5f5;
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .nav-link.active {
@@ -212,10 +211,16 @@ h3 {
     font-family: inherit;
 }
 
+.search-input:hover,
+.feed-input:hover {
+    box-shadow: 2px 2px 0px #000000;
+}
+
 .search-input:focus,
 .feed-input:focus {
     outline: none;
     background-color: #fafafa;
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .search-input::placeholder,
@@ -261,22 +266,16 @@ h3 {
     display: inline-block;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: all 0.15s;
 }
 
 .btn:hover {
-    background-color: #000000;
-    color: #ffffff;
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .btn-primary {
-    background-color: #000000;
-    color: #ffffff;
-}
-
-.btn-primary:hover {
-    background-color: #333333;
-    border-color: #333333;
+    background-color: #ffffff;
+    color: #000000;
 }
 
 .btn-secondary {
@@ -291,8 +290,7 @@ h3 {
 }
 
 .btn-danger:hover {
-    background-color: #FF2C2C;
-    color: #ffffff;
+    box-shadow: 2px 2px 0px #FF2C2C;
 }
 
 .btn-warning {
@@ -302,8 +300,7 @@ h3 {
 }
 
 .btn-warning:hover {
-    background-color: #ff9900;
-    color: #ffffff;
+    box-shadow: 2px 2px 0px #ff9900;
 }
 
 .btn-success {
@@ -313,8 +310,7 @@ h3 {
 }
 
 .btn-success:hover {
-    background-color: #00aa00;
-    color: #ffffff;
+    box-shadow: 2px 2px 0px #00aa00;
 }
 
 /* ═══ Cards ═══ */
@@ -483,7 +479,7 @@ h3 {
 }
 
 .tag-filter-pill:hover {
-    background-color: #f5f5f5;
+    box-shadow: 2px 2px 0px #000000;
 }
 
 /* ═══ Category Filters ═══ */
@@ -510,7 +506,7 @@ h3 {
 }
 
 .category-btn:hover {
-    background-color: #f5f5f5;
+    box-shadow: 2px 2px 0px #000000;
 }
 
 /* ═══ Layout ═══ */
@@ -606,13 +602,17 @@ h3 {
     font-size: 14px;                /* medium */
     font-family: inherit;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all 0.15s;
+}
+
+.feed-tag-input:hover {
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .feed-tag-input:focus {
     outline: none;
     background-color: #fafafa;
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 2px 0px #000000;
 }
 
 .feed-tag-input.feed-tag-saving {

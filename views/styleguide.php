@@ -244,7 +244,7 @@
         <!-- Buttons -->
         <section class="styleguide-section">
             <h2>Buttons</h2>
-            <p>2px border, hover inverts to colored background with white text. Padding: 8px 16px, font-size: 14px (medium), font-weight: 600.</p>
+            <p>2px border, all white background with black text. Hover adds <code>box-shadow: 2px 2px 0px</code> (same as cards). Padding: 8px 16px, font-size: 14px (medium), font-weight: 600.</p>
 
             <div class="component-demo">
                 <div style="display: flex; gap: 12px; flex-wrap: wrap; margin: 20px 0;">
@@ -254,7 +254,7 @@
                     <a href="#" class="btn btn-warning">Warning</a>
                     <a href="#" class="btn btn-success">Success</a>
                 </div>
-                <p><strong>Primary:</strong> black bg, white text. <strong>Secondary:</strong> white bg, black border. <strong>Danger:</strong> #FF2C2C border. <strong>Warning:</strong> #ff9900 border. <strong>Success:</strong> #00aa00 border.</p>
+                <p>All buttons are white with black text. <strong>Danger:</strong> #FF2C2C border + shadow. <strong>Warning:</strong> #ff9900 border + shadow. <strong>Success:</strong> #00aa00 border + shadow.</p>
             </div>
         </section>
 
@@ -503,7 +503,7 @@
         <!-- Hover Effects -->
         <section class="styleguide-section">
             <h2>Hover Effects</h2>
-            <p>Cards get a <code>box-shadow: 2px 2px 0px #000000</code> on hover. Buttons invert to dark background with white text.</p>
+            <p>All interactive elements share the same hover: <code>box-shadow: 2px 2px 0px #000000</code>. This applies to cards, buttons, tags, pills, inputs, and nav links.</p>
             
             <div class="component-demo">
                 <p>Hover the card and button below:</p>
