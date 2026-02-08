@@ -1079,6 +1079,66 @@ switch ($action) {
         echo json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     
+    case 'download_rss_config':
+        $feeds = exportFeeds($pdo, 'rss');
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="rss_feeds.json"');
+        echo json_encode($feeds, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    
+    case 'upload_rss_config':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['rss_config_file'])) {
+            $file = $_FILES['rss_config_file'];
+            if ($file['error'] === UPLOAD_ERR_OK && $file['size'] > 0) {
+                $content = file_get_contents($file['tmp_name']);
+                $parsed = json_decode($content, true);
+                if (is_array($parsed) && !empty($parsed)) {
+                    try {
+                        [$created, $updated] = importFeeds($pdo, $parsed, 'rss');
+                        $_SESSION['success'] = "RSS config imported: $created new, $updated updated.";
+                    } catch (Exception $e) {
+                        $_SESSION['error'] = 'Import error: ' . $e->getMessage();
+                    }
+                } else {
+                    $_SESSION['error'] = 'Invalid JSON file. Expected an array of feed objects.';
+                }
+            } else {
+                $_SESSION['error'] = 'No file uploaded or upload error.';
+            }
+        }
+        header('Location: ?action=settings');
+        break;
+    
+    case 'download_substack_config':
+        $feeds = exportFeeds($pdo, 'substack');
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="substack_feeds.json"');
+        echo json_encode($feeds, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    
+    case 'upload_substack_config':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['substack_config_file'])) {
+            $file = $_FILES['substack_config_file'];
+            if ($file['error'] === UPLOAD_ERR_OK && $file['size'] > 0) {
+                $content = file_get_contents($file['tmp_name']);
+                $parsed = json_decode($content, true);
+                if (is_array($parsed) && !empty($parsed)) {
+                    try {
+                        [$created, $updated] = importFeeds($pdo, $parsed, 'substack');
+                        $_SESSION['success'] = "Substack config imported: $created new, $updated updated.";
+                    } catch (Exception $e) {
+                        $_SESSION['error'] = 'Import error: ' . $e->getMessage();
+                    }
+                } else {
+                    $_SESSION['error'] = 'Invalid JSON file. Expected an array of feed objects.';
+                }
+            } else {
+                $_SESSION['error'] = 'No file uploaded or upload error.';
+            }
+        }
+        header('Location: ?action=settings');
+        break;
+    
     case 'about':
         // About page with stats
         $stats = [];

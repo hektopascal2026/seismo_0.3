@@ -315,3 +315,66 @@ function saveLexConfig($config) {
     $json = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     return file_put_contents(LEX_CONFIG_PATH, $json) !== false;
 }
+
+/**
+ * Export feeds of a given source type as a JSON-serialisable array.
+ * Each entry contains url, title, category, disabled.
+ */
+function exportFeeds($pdo, $sourceType = 'rss') {
+    if ($sourceType === 'rss') {
+        $stmt = $pdo->query("SELECT url, title, description, link, category, disabled FROM feeds WHERE source_type = 'rss' OR source_type IS NULL ORDER BY created_at");
+    } else {
+        $stmt = $pdo->prepare("SELECT url, title, description, link, category, disabled FROM feeds WHERE source_type = ? ORDER BY created_at");
+        $stmt->execute([$sourceType]);
+    }
+    $feeds = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Cast disabled to bool for cleaner JSON
+    foreach ($feeds as &$f) {
+        $f['disabled'] = (bool)$f['disabled'];
+    }
+    unset($f);
+    return $feeds;
+}
+
+/**
+ * Import feeds from a parsed JSON array.
+ * Each entry must have at least a "url" key.
+ * Existing feeds (by URL) are updated; new feeds are inserted.
+ * Returns [int $created, int $updated].
+ */
+function importFeeds($pdo, array $feeds, $sourceType = 'rss') {
+    $created = 0;
+    $updated = 0;
+
+    foreach ($feeds as $f) {
+        $url = trim($f['url'] ?? '');
+        if (empty($url)) continue;
+
+        $title    = trim($f['title'] ?? 'Untitled');
+        $desc     = trim($f['description'] ?? '');
+        $link     = trim($f['link'] ?? $url);
+        $category = trim($f['category'] ?? ($sourceType === 'rss' ? 'unsortiert' : $title));
+        $disabled = !empty($f['disabled']) ? 1 : 0;
+
+        // Check if feed already exists
+        $check = $pdo->prepare("SELECT id FROM feeds WHERE url = ?");
+        $check->execute([$url]);
+        $existing = $check->fetch();
+
+        if ($existing) {
+            // Update existing feed
+            $upd = $pdo->prepare("UPDATE feeds SET title = ?, description = ?, link = ?, category = ?, disabled = ? WHERE id = ?");
+            $upd->execute([$title, $desc, $link, $category, $disabled, $existing['id']]);
+            $updated++;
+        } else {
+            // Insert new feed
+            $stValue = ($sourceType === 'rss') ? null : $sourceType;
+            $ins = $pdo->prepare("INSERT INTO feeds (url, source_type, title, description, link, category, disabled) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $ins->execute([$url, $stValue, $title, $desc, $link, $category, $disabled]);
+            $created++;
+        }
+    }
+
+    return [$created, $updated];
+}

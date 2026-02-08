@@ -228,6 +228,23 @@
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+
+            <!-- RSS Config file management -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 16px;">Config File</h3>
+                <p style="font-size: 13px; color: #666666; margin-bottom: 12px;">
+                    Download your RSS feeds as JSON, or upload a config file to add/update feeds in bulk.
+                </p>
+                <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+                    <a href="?action=download_rss_config" class="btn" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">
+                        Download rss_feeds.json
+                    </a>
+                    <form method="POST" action="?action=upload_rss_config" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" name="rss_config_file" accept=".json,application/json" style="font-size: 13px; font-family: inherit;">
+                        <button type="submit" class="btn" style="font-size: 14px; padding: 8px 16px;">Upload</button>
+                    </form>
+                </div>
+            </div>
         </section>
 
         <!-- Mail Section -->
@@ -380,6 +397,23 @@
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
+
+            <!-- Substack Config file management -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 16px;">Config File</h3>
+                <p style="font-size: 13px; color: #666666; margin-bottom: 12px;">
+                    Download your Substack subscriptions as JSON, or upload a config file to add/update them in bulk.
+                </p>
+                <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+                    <a href="?action=download_substack_config" class="btn" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">
+                        Download substack_feeds.json
+                    </a>
+                    <form method="POST" action="?action=upload_substack_config" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" name="substack_config_file" accept=".json,application/json" style="font-size: 13px; font-family: inherit;">
+                        <button type="submit" class="btn" style="font-size: 14px; padding: 8px 16px;">Upload</button>
+                    </form>
+                </div>
+            </div>
         </section>
 
         <!-- Lex Section -->
