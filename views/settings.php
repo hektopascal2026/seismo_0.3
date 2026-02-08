@@ -529,6 +529,14 @@
                                 </span>
                             <?php endforeach; ?>
                         </div>
+                        <div style="margin-top: 8px; font-size: 12px; color: #888; line-height: 1.6;">
+                            Browse all available IDs:
+                            <a href="https://fedlex.data.admin.ch/vocabularies/de/page/resource-type" target="_blank" rel="noopener" style="color: #0066cc;">Fedlex vocabulary: resource-type</a>
+                            &middot;
+                            <a href="https://fedlex.data.admin.ch/en-CH/home/models" target="_blank" rel="noopener" style="color: #0066cc;">JOLux data model</a>
+                            &middot;
+                            <a href="https://github.com/swiss/fedlex-sparql" target="_blank" rel="noopener" style="color: #0066cc;">SPARQL tutorial</a>
+                        </div>
                     </div>
                     
                     <div>
