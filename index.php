@@ -992,12 +992,28 @@ switch ($action) {
         header('Location: ?action=lex');
         break;
     
+    case 'about':
+        // About page with stats
+        $stats = [];
+        try {
+            $stats['feeds'] = $pdo->query("SELECT COUNT(*) FROM feeds WHERE source_type = 'rss' OR source_type IS NULL")->fetchColumn();
+            $stats['feed_items'] = $pdo->query("SELECT COUNT(*) FROM feed_items")->fetchColumn();
+            $stats['emails'] = $pdo->query("SELECT COUNT(*) FROM emails")->fetchColumn();
+            $stats['lex_eu'] = $pdo->query("SELECT COUNT(*) FROM lex_items WHERE source = 'eu'")->fetchColumn();
+            $stats['lex_ch'] = $pdo->query("SELECT COUNT(*) FROM lex_items WHERE source = 'ch'")->fetchColumn();
+        } catch (PDOException $e) {
+            // Tables might not exist yet
+        }
+        $lastChangeDate = date('d.m.Y', filemtime(__FILE__));
+        include 'views/about.php';
+        break;
+
     case 'styleguide':
         // Get last code change date (use modification time of index.php)
         $lastChangeDate = date('d.m.Y', filemtime(__FILE__));
         include 'views/styleguide.php';
         break;
-        
+    
     default:
         header('Location: ?action=index');
         break;

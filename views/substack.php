@@ -22,6 +22,7 @@
             <a href="?action=mail" class="nav-link">Mail</a>
             <a href="?action=substack" class="nav-link active" style="background-color: #C5B4D1; color: #000000;">Substack</a>
             <a href="?action=settings" class="nav-link">Settings</a>
+            <a href="?action=about" class="nav-link">About</a>
         </nav>
 
         <header>
