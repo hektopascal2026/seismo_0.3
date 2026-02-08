@@ -17,16 +17,16 @@ switch ($action) {
         // Show main page with entries only (no feeds section)
         $searchQuery = trim($_GET['q'] ?? '');
 
-        // Get all unique tags (categories) from RSS feeds only (not Substack)
-        $tagsStmt = $pdo->query("SELECT DISTINCT category FROM feeds WHERE category IS NOT NULL AND category != '' AND (source_type = 'rss' OR source_type IS NULL) ORDER BY category");
+        // Get all unique tags (categories) from enabled RSS feeds only (not Substack)
+        $tagsStmt = $pdo->query("SELECT DISTINCT category FROM feeds WHERE category IS NOT NULL AND category != '' AND disabled = 0 AND (source_type = 'rss' OR source_type IS NULL) ORDER BY category");
         $tags = $tagsStmt->fetchAll(PDO::FETCH_COLUMN);
         
-        // Get all unique email tags (excluding unclassified)
-        $emailTagsStmt = $pdo->query("SELECT DISTINCT tag FROM sender_tags WHERE tag IS NOT NULL AND tag != '' AND tag != 'unclassified' AND removed_at IS NULL ORDER BY tag");
+        // Get all unique email tags (excluding unclassified and disabled senders)
+        $emailTagsStmt = $pdo->query("SELECT DISTINCT tag FROM sender_tags WHERE tag IS NOT NULL AND tag != '' AND tag != 'unclassified' AND removed_at IS NULL AND disabled = 0 ORDER BY tag");
         $emailTags = $emailTagsStmt->fetchAll(PDO::FETCH_COLUMN);
         
-        // Get all unique Substack tags
-        $substackTagsStmt = $pdo->query("SELECT DISTINCT category FROM feeds WHERE source_type = 'substack' AND category IS NOT NULL AND category != '' ORDER BY category");
+        // Get all unique Substack tags from enabled feeds
+        $substackTagsStmt = $pdo->query("SELECT DISTINCT category FROM feeds WHERE source_type = 'substack' AND disabled = 0 AND category IS NOT NULL AND category != '' ORDER BY category");
         $substackTags = $substackTagsStmt->fetchAll(PDO::FETCH_COLUMN);
 
         // Tag filter: selected tags from query (multi-select)
