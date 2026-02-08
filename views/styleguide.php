@@ -278,7 +278,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;">user-tag</span>
+                        <span class="entry-tag" style="background-color: #add8e6; ">user-tag</span>
                     </div>
                     <h3 class="entry-title">
                         <a href="#">Entry Title Example</a>
@@ -301,7 +301,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;">sender-tag</span>
+                        <span class="entry-tag" style="background-color: #FFDBBB; ">sender-tag</span>
                     </div>
                     <h3 class="entry-title">Email Subject Line</h3>
                     <div class="entry-content entry-preview">Email body preview truncated to 200 chars…</div>
@@ -318,7 +318,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <span class="entry-tag" style="background-color: #C5B4D1; border-color: #a898b5;">user-tag</span>
+                        <span class="entry-tag" style="background-color: #C5B4D1; ">user-tag</span>
                     </div>
                     <h3 class="entry-title"><a href="#">Substack Post Title</a></h3>
                     <div class="entry-content entry-preview">Post content preview…</div>
@@ -335,7 +335,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <span class="entry-tag" style="background-color: #f5f562; border-color: #000000;">🇨🇭 CH</span>
+                        <span class="entry-tag" style="background-color: #f5f562; ">🇨🇭 CH</span>
                         <span class="entry-tag" style="background-color: #f5f5f5;">Bundesgesetz</span>
                     </div>
                     <h3 class="entry-title"><a href="#">Bundesgesetz über die Beispielregelung</a></h3>
@@ -519,7 +519,7 @@
                 <p>Hover the card and button below:</p>
                 <div class="entry-card" style="max-width: 400px; margin: 16px 0;">
                     <div class="entry-header">
-                        <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;">Card hover</span>
+                        <span class="entry-tag" style="background-color: #add8e6; ">Card hover</span>
                     </div>
                     <h3 class="entry-title"><a href="#">Shadow appears on hover</a></h3>
                 </div>

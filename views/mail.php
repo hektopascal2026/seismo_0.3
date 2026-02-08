@@ -103,7 +103,7 @@
                     <div class="entry-card">
                         <div class="entry-header">
                             <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
-                                <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($email['sender_tag']) ?></span>
+                                <span class="entry-tag" style="background-color: #FFDBBB;"><?= htmlspecialchars($email['sender_tag']) ?></span>
                             <?php endif; ?>
                         </div>
                         <h3 class="entry-title"><?= htmlspecialchars($subject) ?></h3>

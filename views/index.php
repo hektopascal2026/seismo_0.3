@@ -131,7 +131,7 @@
                             $contentPreview = mb_substr($fullContent, 0, 200);
                             if (mb_strlen($fullContent) > 200) $contentPreview .= '...';
                             $hasMore = mb_strlen($fullContent) > 200;
-                            $feedTagColor = ($itemWrapper['type'] === 'substack') ? 'background-color: #C5B4D1; border-color: #a898b5;' : 'background-color: #add8e6; border-color: #8fc1d4;';
+                            $feedTagColor = ($itemWrapper['type'] === 'substack') ? 'background-color: #C5B4D1;' : 'background-color: #add8e6;';
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
@@ -234,7 +234,7 @@
                         <div class="entry-card">
                             <div class="entry-header">
                                 <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
-                                    <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($email['sender_tag']) ?></span>
+                                    <span class="entry-tag" style="background-color: #FFDBBB;"><?= htmlspecialchars($email['sender_tag']) ?></span>
                                 <?php endif; ?>
                             </div>
                             <h3 class="entry-title">

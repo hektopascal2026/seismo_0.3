@@ -98,7 +98,7 @@
                     <div class="entry-card">
                         <div class="entry-header">
                             <?php if (!empty($item['feed_category']) && $item['feed_category'] !== 'unsortiert'): ?>
-                                <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;"><?= htmlspecialchars($item['feed_category']) ?></span>
+                                <span class="entry-tag" style="background-color: #add8e6;"><?= htmlspecialchars($item['feed_category']) ?></span>
                             <?php endif; ?>
                         </div>
                         <h3 class="entry-title">
