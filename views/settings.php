@@ -475,6 +475,16 @@
                     <div style="margin-top: 8px; font-size: 12px; color: #888;">
                         Endpoint: <code style="font-size: 11px;"><?= htmlspecialchars($lexConfig['eu']['endpoint'] ?? '') ?></code>
                     </div>
+                    <div style="margin-top: 6px; font-size: 12px; color: #888; line-height: 1.6;">
+                        Reference:
+                        <a href="https://op.europa.eu/en/web/eu-vocabularies/cdm" target="_blank" rel="noopener" style="color: #0066cc;">CDM ontology</a>
+                        &middot;
+                        <a href="https://eur-lex.europa.eu/content/tools/webservices/SearchWebServiceUserManual_v2.00.pdf" target="_blank" rel="noopener" style="color: #0066cc;">EUR-Lex web services manual</a>
+                        &middot;
+                        <a href="https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/resource-type" target="_blank" rel="noopener" style="color: #0066cc;">EU resource-type vocabulary</a>
+                        &middot;
+                        <a href="https://publications.europa.eu/webapi/rdf/sparql" target="_blank" rel="noopener" style="color: #0066cc;">SPARQL endpoint</a>
+                    </div>
                 </div>
 
                 <!-- CH Configuration -->
