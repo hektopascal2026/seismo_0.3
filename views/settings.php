@@ -381,6 +381,155 @@
                 </div>
             <?php endif; ?>
         </section>
+
+        <!-- Lex Section -->
+        <section class="settings-section" id="lex-settings">
+            <h2 style="background-color: #B2C2A2; padding: 8px 14px; display: inline-block;">Lex</h2>
+            <p style="margin: 8px 0 16px; color: #666666; font-size: 14px;">
+                Configure how Seismo queries EU and Swiss legislative databases via SPARQL.
+            </p>
+
+            <form method="POST" action="?action=save_lex_config">
+                <!-- EU Configuration -->
+                <div style="margin-bottom: 24px; padding: 16px; border: 2px solid #000000; background: #fafafa;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <label style="font-weight: 700; font-size: 18px;">🇪🇺 EUR-Lex</label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer;">
+                            <input type="checkbox" name="eu_enabled" value="1" <?= ($lexConfig['eu']['enabled'] ?? true) ? 'checked' : '' ?>>
+                            Enabled
+                        </label>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Language</label>
+                            <select name="eu_language" style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px;">
+                                <?php
+                                $euLangs = ['ENG' => 'English', 'DEU' => 'Deutsch', 'FRA' => 'Français', 'ITA' => 'Italiano'];
+                                $currentEuLang = $lexConfig['eu']['language'] ?? 'ENG';
+                                foreach ($euLangs as $code => $label): ?>
+                                    <option value="<?= $code ?>" <?= $currentEuLang === $code ? 'selected' : '' ?>><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Document class</label>
+                            <input type="text" name="eu_document_class" value="<?= htmlspecialchars($lexConfig['eu']['document_class'] ?? 'cdm:legislation_secondary') ?>" 
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 13px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Lookback (days)</label>
+                            <input type="number" name="eu_lookback_days" value="<?= (int)($lexConfig['eu']['lookback_days'] ?? 90) ?>" min="1" max="365"
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Max results</label>
+                            <input type="number" name="eu_limit" value="<?= (int)($lexConfig['eu']['limit'] ?? 100) ?>" min="1" max="500"
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Notes</label>
+                        <textarea name="eu_notes" rows="2" placeholder="Optional notes about this query scope..."
+                                  style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 13px; resize: vertical; box-sizing: border-box;"><?= htmlspecialchars($lexConfig['eu']['notes'] ?? '') ?></textarea>
+                    </div>
+                    
+                    <div style="margin-top: 8px; font-size: 12px; color: #888;">
+                        Endpoint: <code style="font-size: 11px;"><?= htmlspecialchars($lexConfig['eu']['endpoint'] ?? '') ?></code>
+                    </div>
+                </div>
+
+                <!-- CH Configuration -->
+                <div style="margin-bottom: 24px; padding: 16px; border: 2px solid #000000; background: #fafafa;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <label style="font-weight: 700; font-size: 18px;">🇨🇭 Fedlex</label>
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer;">
+                            <input type="checkbox" name="ch_enabled" value="1" <?= ($lexConfig['ch']['enabled'] ?? true) ? 'checked' : '' ?>>
+                            Enabled
+                        </label>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Language</label>
+                            <select name="ch_language" style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px;">
+                                <?php
+                                $chLangs = ['DEU' => 'Deutsch', 'FRA' => 'Français', 'ITA' => 'Italiano', 'ENG' => 'English'];
+                                $currentChLang = $lexConfig['ch']['language'] ?? 'DEU';
+                                foreach ($chLangs as $code => $label): ?>
+                                    <option value="<?= $code ?>" <?= $currentChLang === $code ? 'selected' : '' ?>><?= $label ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Lookback (days)</label>
+                            <input type="number" name="ch_lookback_days" value="<?= (int)($lexConfig['ch']['lookback_days'] ?? 90) ?>" min="1" max="365"
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Max results</label>
+                            <input type="number" name="ch_limit" value="<?= (int)($lexConfig['ch']['limit'] ?? 100) ?>" min="1" max="500"
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                        <div></div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Resource types (comma-separated IDs)</label>
+                        <?php
+                        $rtIds = array_map(function($rt) { return is_array($rt) ? $rt['id'] : $rt; }, $lexConfig['ch']['resource_types'] ?? []);
+                        ?>
+                        <input type="text" name="ch_resource_types" value="<?= htmlspecialchars(implode(', ', $rtIds)) ?>"
+                               style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 13px; box-sizing: border-box;">
+                        <div style="margin-top: 6px; font-size: 12px; color: #888; line-height: 1.6;">
+                            <?php foreach (($lexConfig['ch']['resource_types'] ?? []) as $rt): ?>
+                                <span style="display: inline-block; background: #f0f0f0; padding: 2px 8px; margin: 2px 4px 2px 0; border: 1px solid #ddd; font-family: monospace; font-size: 11px;">
+                                    <?= (int)(is_array($rt) ? $rt['id'] : $rt) ?> = <?= htmlspecialchars(is_array($rt) ? ($rt['label'] ?? '?') : '?') ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Notes</label>
+                        <textarea name="ch_notes" rows="2" placeholder="Optional notes about this query scope..."
+                                  style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 13px; resize: vertical; box-sizing: border-box;"><?= htmlspecialchars($lexConfig['ch']['notes'] ?? '') ?></textarea>
+                    </div>
+                    
+                    <div style="margin-top: 8px; font-size: 12px; color: #888;">
+                        Endpoint: <code style="font-size: 11px;"><?= htmlspecialchars($lexConfig['ch']['endpoint'] ?? '') ?></code>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button type="submit" class="btn btn-primary">Save Configuration</button>
+                </div>
+            </form>
+
+            <!-- Config file management -->
+            <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 16px;">Config File</h3>
+                <p style="font-size: 13px; color: #666666; margin-bottom: 12px;">
+                    Download the current configuration as JSON, or upload a config file to apply.
+                </p>
+                <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
+                    <a href="?action=download_lex_config" class="btn" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">
+                        Download lex_config.json
+                    </a>
+                    <form method="POST" action="?action=upload_lex_config" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
+                        <input type="file" name="lex_config_file" accept=".json,application/json" style="font-size: 13px; font-family: inherit;">
+                        <button type="submit" class="btn" style="font-size: 14px; padding: 8px 16px;">Upload</button>
+                    </form>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>

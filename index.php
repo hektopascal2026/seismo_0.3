@@ -884,6 +884,9 @@ switch ($action) {
             // Error getting senders
         }
         
+        // Load Lex config for the Lex settings section
+        $lexConfig = getLexConfig();
+        
         include 'views/settings.php';
         break;
         
@@ -965,21 +968,30 @@ switch ($action) {
     
     case 'refresh_all_lex':
         // Refresh Lex items from both EU CELLAR and Fedlex SPARQL endpoints
+        $lexCfg = getLexConfig();
         $messages = [];
         $errors = [];
         
-        try {
-            $countEu = refreshLexItems($pdo);
-            $messages[] = "🇪🇺 $countEu items from EUR-Lex";
-        } catch (Exception $e) {
-            $errors[] = '🇪🇺 EU: ' . $e->getMessage();
+        if ($lexCfg['eu']['enabled'] ?? true) {
+            try {
+                $countEu = refreshLexItems($pdo);
+                $messages[] = "🇪🇺 $countEu items from EUR-Lex";
+            } catch (Exception $e) {
+                $errors[] = '🇪🇺 EU: ' . $e->getMessage();
+            }
+        } else {
+            $messages[] = '🇪🇺 EU skipped (disabled)';
         }
         
-        try {
-            $countCh = refreshFedlexItems($pdo);
-            $messages[] = "🇨🇭 $countCh items from Fedlex";
-        } catch (Exception $e) {
-            $errors[] = '🇨🇭 CH: ' . $e->getMessage();
+        if ($lexCfg['ch']['enabled'] ?? true) {
+            try {
+                $countCh = refreshFedlexItems($pdo);
+                $messages[] = "🇨🇭 $countCh items from Fedlex";
+            } catch (Exception $e) {
+                $errors[] = '🇨🇭 CH: ' . $e->getMessage();
+            }
+        } else {
+            $messages[] = '🇨🇭 CH skipped (disabled)';
         }
         
         if (!empty($messages)) {
@@ -991,6 +1003,81 @@ switch ($action) {
         
         header('Location: ?action=lex');
         break;
+    
+    case 'save_lex_config':
+        // Save Lex config from the settings form
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $config = getLexConfig();
+            
+            // EU settings
+            $config['eu']['enabled']        = isset($_POST['eu_enabled']);
+            $config['eu']['language']       = trim($_POST['eu_language'] ?? 'ENG');
+            $config['eu']['lookback_days']  = max(1, (int)($_POST['eu_lookback_days'] ?? 90));
+            $config['eu']['limit']          = max(1, (int)($_POST['eu_limit'] ?? 100));
+            $config['eu']['document_class'] = trim($_POST['eu_document_class'] ?? 'cdm:legislation_secondary');
+            $config['eu']['notes']          = trim($_POST['eu_notes'] ?? '');
+            
+            // CH settings
+            $config['ch']['enabled']       = isset($_POST['ch_enabled']);
+            $config['ch']['language']      = trim($_POST['ch_language'] ?? 'DEU');
+            $config['ch']['lookback_days'] = max(1, (int)($_POST['ch_lookback_days'] ?? 90));
+            $config['ch']['limit']         = max(1, (int)($_POST['ch_limit'] ?? 100));
+            $config['ch']['notes']         = trim($_POST['ch_notes'] ?? '');
+            
+            // CH resource types — parse comma-separated IDs
+            $rtRaw = trim($_POST['ch_resource_types'] ?? '');
+            if (!empty($rtRaw)) {
+                $ids = array_filter(array_map('intval', preg_split('/[\s,]+/', $rtRaw)));
+                $existingTypes = [];
+                foreach (($config['ch']['resource_types'] ?? []) as $rt) {
+                    $existingTypes[(int)$rt['id']] = $rt['label'] ?? '';
+                }
+                $newTypes = [];
+                foreach ($ids as $id) {
+                    $newTypes[] = ['id' => $id, 'label' => $existingTypes[$id] ?? 'Type ' . $id];
+                }
+                $config['ch']['resource_types'] = $newTypes;
+            }
+            
+            if (saveLexConfig($config)) {
+                $_SESSION['success'] = 'Lex configuration saved.';
+            } else {
+                $_SESSION['error'] = 'Failed to save Lex configuration.';
+            }
+        }
+        header('Location: ?action=settings#lex-settings');
+        break;
+    
+    case 'upload_lex_config':
+        // Upload a JSON config file to replace the current config
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['lex_config_file'])) {
+            $file = $_FILES['lex_config_file'];
+            if ($file['error'] === UPLOAD_ERR_OK && $file['size'] > 0) {
+                $content = file_get_contents($file['tmp_name']);
+                $parsed = json_decode($content, true);
+                if ($parsed !== null && (isset($parsed['eu']) || isset($parsed['ch']))) {
+                    if (saveLexConfig($parsed)) {
+                        $_SESSION['success'] = 'Lex config file uploaded and applied.';
+                    } else {
+                        $_SESSION['error'] = 'Failed to write uploaded config.';
+                    }
+                } else {
+                    $_SESSION['error'] = 'Invalid JSON config file. Must contain "eu" and/or "ch" keys.';
+                }
+            } else {
+                $_SESSION['error'] = 'No file uploaded or upload error.';
+            }
+        }
+        header('Location: ?action=settings#lex-settings');
+        break;
+    
+    case 'download_lex_config':
+        // Download the current config as a JSON file
+        $config = getLexConfig();
+        header('Content-Type: application/json');
+        header('Content-Disposition: attachment; filename="lex_config.json"');
+        echo json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
     
     case 'about':
         // About page with stats
@@ -1946,8 +2033,15 @@ function handleDeleteEmail($pdo) {
  * Queries for recent finalized secondary legislation (regulations, directives, decisions).
  */
 function refreshLexItems($pdo) {
-    // Always look back 90 days to ensure we catch all items and update any corrected dates
-    $sinceDate = date('Y-m-d', strtotime('-90 days'));
+    $config = getLexConfig();
+    $euCfg = $config['eu'] ?? [];
+    
+    $lookback = (int)($euCfg['lookback_days'] ?? 90);
+    $sinceDate = date('Y-m-d', strtotime("-{$lookback} days"));
+    $lang = $euCfg['language'] ?? 'ENG';
+    $limit = (int)($euCfg['limit'] ?? 100);
+    $docClass = $euCfg['document_class'] ?? 'cdm:legislation_secondary';
+    $endpoint = $euCfg['endpoint'] ?? 'https://publications.europa.eu/webapi/rdf/sparql';
     
     $sparqlQuery = '
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
@@ -1955,19 +2049,19 @@ function refreshLexItems($pdo) {
         
         SELECT DISTINCT ?work ?celex ?title ?date
         WHERE {
-            ?work a cdm:legislation_secondary .
+            ?work a ' . $docClass . ' .
             ?work cdm:work_date_document ?date .
             ?work cdm:resource_legal_id_celex ?celex .
             ?expr cdm:expression_belongs_to_work ?work .
-            ?expr cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG> .
+            ?expr cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/' . $lang . '> .
             ?expr cdm:expression_title ?title .
             FILTER(?date >= "' . $sinceDate . '"^^xsd:date)
         }
         ORDER BY DESC(?date)
-        LIMIT 100
+        LIMIT ' . $limit . '
     ';
     
-    $sparql = new \EasyRdf\Sparql\Client('https://publications.europa.eu/webapi/rdf/sparql');
+    $sparql = new \EasyRdf\Sparql\Client($endpoint);
     $results = $sparql->query($sparqlQuery);
     
     $count = 0;
@@ -2021,17 +2115,28 @@ function parseCelexType($celex) {
  * Queries for recent Acts (Bundesgesetze, Verordnungen, Bundesbeschlüsse, etc.).
  */
 function refreshFedlexItems($pdo) {
-    // Always look back 90 days to ensure we catch all items and update any corrected dates
-    $sinceDate = date('Y-m-d', strtotime('-90 days'));
+    $config = getLexConfig();
+    $chCfg = $config['ch'] ?? [];
     
-    // Resource types to fetch (key legislation types):
-    // 21=Bundesgesetz, 22=Dringliches Bundesgesetz, 29=Verordnung BR,
-    // 26=Departementsverordnung, 27=Amtsverordnung, 28=Verordnung BV,
-    // 8=Einfacher Bundesbeschluss, 9=Bundesbeschluss fak. Ref., 10=Bundesbeschluss obl. Ref.,
-    // 31=Bilateral Treaty, 32=Multilateral Treaty
+    $lookback = (int)($chCfg['lookback_days'] ?? 90);
+    $sinceDate = date('Y-m-d', strtotime("-{$lookback} days"));
+    $lang = $chCfg['language'] ?? 'DEU';
+    $limit = (int)($chCfg['limit'] ?? 100);
+    $endpoint = $chCfg['endpoint'] ?? 'https://fedlex.data.admin.ch/sparqlendpoint';
+    
+    // Build resource-type filter from config
+    $resourceTypes = $chCfg['resource_types'] ?? [];
+    $typeIds = array_map(function($rt) {
+        return is_array($rt) ? (int)$rt['id'] : (int)$rt;
+    }, $resourceTypes);
+    
+    if (empty($typeIds)) {
+        $typeIds = [21, 22, 29, 26, 27, 28, 8, 9, 10, 31, 32];
+    }
+    
     $typeFilter = implode(', ', array_map(function($n) {
         return '<https://fedlex.data.admin.ch/vocabulary/resource-type/' . $n . '>';
-    }, [21, 22, 29, 26, 27, 28, 8, 9, 10, 31, 32]));
+    }, $typeIds));
     
     $sparqlQuery = '
         PREFIX jolux: <http://data.legilux.public.lu/resource/ontology/jolux#>
@@ -2044,15 +2149,15 @@ function refreshFedlexItems($pdo) {
             ?act jolux:typeDocument ?typeDoc .
             ?act jolux:isRealizedBy ?expr .
             ?expr jolux:title ?title .
-            ?expr jolux:language <http://publications.europa.eu/resource/authority/language/DEU> .
+            ?expr jolux:language <http://publications.europa.eu/resource/authority/language/' . $lang . '> .
             FILTER(?typeDoc IN (' . $typeFilter . '))
             FILTER(?pubDate >= "' . $sinceDate . '"^^xsd:date && ?pubDate <= "' . date('Y-m-d', strtotime('+1 year')) . '"^^xsd:date)
         }
         ORDER BY DESC(?pubDate)
-        LIMIT 100
+        LIMIT ' . $limit . '
     ';
     
-    $sparql = new \EasyRdf\Sparql\Client('https://fedlex.data.admin.ch/sparqlendpoint');
+    $sparql = new \EasyRdf\Sparql\Client($endpoint);
     $results = $sparql->query($sparqlQuery);
     
     $count = 0;

@@ -255,3 +255,63 @@ function getBasePath() {
     $path = dirname($_SERVER['PHP_SELF']);
     return $path === '/' ? '' : $path;
 }
+
+/**
+ * Lex config file path
+ */
+define('LEX_CONFIG_PATH', __DIR__ . '/lex_config.json');
+
+/**
+ * Get the current Lex config (EU + CH SPARQL parameters).
+ * Returns the parsed JSON config, or a sensible default if the file doesn't exist.
+ */
+function getLexConfig() {
+    if (file_exists(LEX_CONFIG_PATH)) {
+        $json = file_get_contents(LEX_CONFIG_PATH);
+        $config = json_decode($json, true);
+        if ($config !== null) {
+            return $config;
+        }
+    }
+    // Fallback defaults
+    return [
+        'eu' => [
+            'enabled' => true,
+            'endpoint' => 'https://publications.europa.eu/webapi/rdf/sparql',
+            'language' => 'ENG',
+            'lookback_days' => 90,
+            'limit' => 100,
+            'document_class' => 'cdm:legislation_secondary',
+            'notes' => '',
+        ],
+        'ch' => [
+            'enabled' => true,
+            'endpoint' => 'https://fedlex.data.admin.ch/sparqlendpoint',
+            'language' => 'DEU',
+            'lookback_days' => 90,
+            'limit' => 100,
+            'resource_types' => [
+                ['id' => 21, 'label' => 'Bundesgesetz'],
+                ['id' => 22, 'label' => 'Dringliches Bundesgesetz'],
+                ['id' => 29, 'label' => 'Verordnung des Bundesrates'],
+                ['id' => 26, 'label' => 'Departementsverordnung'],
+                ['id' => 27, 'label' => 'Amtsverordnung'],
+                ['id' => 28, 'label' => 'Verordnung der Bundesversammlung'],
+                ['id' => 8,  'label' => 'Einfacher Bundesbeschluss (andere)'],
+                ['id' => 9,  'label' => 'Bundesbeschluss (fakultatives Referendum)'],
+                ['id' => 10, 'label' => 'Bundesbeschluss (obligatorisches Referendum)'],
+                ['id' => 31, 'label' => 'Internationaler Rechtstext bilateral'],
+                ['id' => 32, 'label' => 'Internationaler Rechtstext multilateral'],
+            ],
+            'notes' => '',
+        ],
+    ];
+}
+
+/**
+ * Save a Lex config array to disk as JSON.
+ */
+function saveLexConfig($config) {
+    $json = json_encode($config, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    return file_put_contents(LEX_CONFIG_PATH, $json) !== false;
+}
