@@ -88,10 +88,10 @@
                         <?php if ($item['description'] || $item['content']): ?>
                             <div class="entry-content">
                                 <?= $item['content'] ?: strip_tags($item['description'], '<p><a><strong><em><br>') ?>
+                                <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link" style="margin-left: 4px;">Read more →</a>
                             </div>
                         <?php endif; ?>
                         <div class="entry-actions">
-                            <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
                             <?php if ($item['published_date']): ?>
                                 <span class="entry-date"><?= date('d.m.Y H:i', strtotime($item['published_date'])) ?></span>
                             <?php endif; ?>

@@ -114,14 +114,16 @@
                             </a>
                         </h3>
                         <?php if ($item['description'] || $item['content']): ?>
-                            <div class="entry-content entry-preview"><?= htmlspecialchars($contentPreview) ?></div>
+                            <div class="entry-content entry-preview">
+                                <?= htmlspecialchars($contentPreview) ?>
+                                <?php if ($item['link']): ?>
+                                    <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link" style="margin-left: 4px;">Read more →</a>
+                                <?php endif; ?>
+                            </div>
                             <div class="entry-full-content" style="display:none"><?= htmlspecialchars($fullContent) ?></div>
                         <?php endif; ?>
                         <div class="entry-actions">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <?php if ($item['link']): ?>
-                                    <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener" class="entry-link">Read more →</a>
-                                <?php endif; ?>
                                 <?php if ($hasMore): ?>
                                     <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
                                 <?php endif; ?>
