@@ -272,16 +272,13 @@
         <section class="styleguide-section">
             <h2>Cards</h2>
             <p>2px black border, 14px 16px padding. Hover adds <code>box-shadow: 2px 2px 0px #000000</code> without changing size.</p>
-            <p>Layout: <strong>top-left</strong> = source tag + user-assigned tag (<code>.entry-tag</code>, 1px border, colored bg), <strong>top-right</strong> = context (reserved, e.g. document type for Lex). <strong>Bottom-left</strong> = actions/links, <strong>bottom-right</strong> = date.</p>
+            <p>Layout: <strong>top-left</strong> = user-assigned tag (<code>.entry-tag</code>, matches <code>.tag-filter-pill</code> sizing: 1px border, 4px 10px padding, 12px/500), <strong>top-right</strong> = context (reserved, e.g. document type for Lex). <strong>Bottom-left</strong> = actions/links, <strong>bottom-right</strong> = date. Feed title / sender name not shown on cards (available in Settings).</p>
             
             <h3>RSS Card</h3>
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;">Source Name</span>
-                            <span class="entry-tag" style="background-color: #f5f5f5;">user-tag</span>
-                        </div>
+                        <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;">user-tag</span>
                     </div>
                     <h3 class="entry-title">
                         <a href="#">Entry Title Example</a>
@@ -304,10 +301,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;">Sender Name</span>
-                            <span class="entry-tag" style="background-color: #f5f5f5;">sender-tag</span>
-                        </div>
+                        <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;">sender-tag</span>
                     </div>
                     <h3 class="entry-title">Email Subject Line</h3>
                     <div class="entry-content entry-preview">Email body preview truncated to 200 chars…</div>
@@ -324,10 +318,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span class="entry-tag" style="background-color: #C5B4D1; border-color: #a898b5;">Newsletter Name</span>
-                            <span class="entry-tag" style="background-color: #f5f5f5;">user-tag</span>
-                        </div>
+                        <span class="entry-tag" style="background-color: #C5B4D1; border-color: #a898b5;">user-tag</span>
                     </div>
                     <h3 class="entry-title"><a href="#">Substack Post Title</a></h3>
                     <div class="entry-content entry-preview">Post content preview…</div>

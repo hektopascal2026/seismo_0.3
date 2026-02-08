@@ -256,11 +256,11 @@ h3 {
 }
 
 .entry-tag {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border: 1px solid #000000;
     display: inline-block;
+    padding: 4px 10px;
+    border: 1px solid #000000;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 .entry-date,
