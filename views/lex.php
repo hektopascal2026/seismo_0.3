@@ -22,8 +22,8 @@
                 <span class="top-bar-subtitle">EU &amp; Swiss legislation — finalized acts via SPARQL</span>
             </div>
             <div class="top-bar-actions">
-                <a href="?action=refresh_all_lex" class="top-bar-btn" title="Fetch latest legislation">&#x21bb;</a>
-                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu">&#9776;</button>
+                <a href="?action=refresh_all_lex" class="top-bar-btn" title="Fetch latest legislation"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></a>
+                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
             </div>
         </div>
 
@@ -69,7 +69,7 @@
 
         <div class="latest-entries-section">
             <div class="section-title-row">
-                <h2 class="section-title" style="font-size: 14px; font-weight: 400; color: #666;">
+                <h2 class="section-title">
                     <?php
                         $refreshParts = [];
                         if (!empty($lastLexRefreshDateEu)) $refreshParts[] = '🇪🇺 ' . $lastLexRefreshDateEu;

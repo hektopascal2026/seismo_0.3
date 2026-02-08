@@ -23,9 +23,9 @@
                 <span class="top-bar-subtitle">ein Prototyp von hektopascal.org | v0.2.3</span>
             </div>
             <div class="top-bar-actions">
-                <a href="?action=refresh_all_feeds" class="top-bar-btn" title="Refresh all sources">&#x21bb;</a>
-                <button type="button" class="top-bar-btn" id="searchToggle" title="Search">&#x2315;</button>
-                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu">&#9776;</button>
+                <a href="?action=refresh_all_feeds" class="top-bar-btn" title="Refresh all sources"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></a>
+                <button type="button" class="top-bar-btn" id="searchToggle" title="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></button>
+                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
             </div>
         </div>
 
