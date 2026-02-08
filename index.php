@@ -1625,11 +1625,17 @@ function searchEmails($pdo, $query, $limit = 100, $selectedEmailTags = []) {
 function attachSenderTags($pdo, &$emails) {
     if (empty($emails)) return;
     // Build lookup map: from_email → tag
+    // Handles both raw "Name" <email> format and plain email format
     try {
         $tagMapStmt = $pdo->query("SELECT from_email, tag FROM sender_tags WHERE removed_at IS NULL AND tag IS NOT NULL AND tag != ''");
         $tagMap = [];
         while ($row = $tagMapStmt->fetch()) {
-            $tagMap[strtolower($row['from_email'])] = $row['tag'];
+            $raw = strtolower(trim($row['from_email']));
+            $tagMap[$raw] = $row['tag'];
+            // Also extract just the email address for matching after from_addr parsing
+            if (preg_match('/<([^>]+)>/', $raw, $m)) {
+                $tagMap[strtolower(trim($m[1]))] = $row['tag'];
+            }
         }
         foreach ($emails as &$email) {
             $addr = strtolower(trim($email['from_email'] ?? ''));
