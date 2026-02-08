@@ -120,11 +120,11 @@
                     Email newsletters stored in the database
                 </li>
                 <li>
-                    <span class="about-source-label" style="background-color: #B2C2A2;">🇪🇺 EU Lex</span>
+                    <span class="about-source-label" style="background-color: #f5f562;">🇪🇺 EU Lex</span>
                     EU legislation via SPARQL queries to the <a href="https://publications.europa.eu/webapi/rdf/sparql" class="about-link" target="_blank" rel="noopener">EU CELLAR</a> endpoint (CDM ontology) — regulations, directives, and decisions
                 </li>
                 <li>
-                    <span class="about-source-label" style="background-color: #B2C2A2;">🇨🇭 CH Lex</span>
+                    <span class="about-source-label" style="background-color: #f5f562;">🇨🇭 CH Lex</span>
                     Swiss federal legislation via SPARQL queries to <a href="https://fedlex.data.admin.ch/sparqlendpoint" class="about-link" target="_blank" rel="noopener">Fedlex</a> (JOLux ontology) — Bundesgesetze, Verordnungen, Bundesbeschlüsse, and international treaties
                 </li>
             </ul>

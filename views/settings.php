@@ -418,7 +418,7 @@
 
         <!-- Lex Section -->
         <section class="settings-section" id="lex-settings">
-            <h2 style="background-color: #B2C2A2; padding: 8px 14px; display: inline-block;">Lex</h2>
+            <h2 style="background-color: #f5f562; padding: 8px 14px; display: inline-block;">Lex</h2>
             <p style="margin: 8px 0 16px; color: #666666; font-size: 14px;">
                 Configure how Seismo queries EU and Swiss legislative databases via SPARQL.
             </p>

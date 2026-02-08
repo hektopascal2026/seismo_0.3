@@ -85,11 +85,11 @@
                                 $lexEuSelected = !empty($selectedLexSources) && in_array('eu', $selectedLexSources, true);
                                 $lexChSelected = !empty($selectedLexSources) && in_array('ch', $selectedLexSources, true);
                             ?>
-                            <label class="tag-filter-pill<?= $lexEuSelected ? ' tag-filter-pill-active' : '' ?>"<?= $lexEuSelected ? ' style="background-color: #B2C2A2;"' : '' ?>>
+                            <label class="tag-filter-pill<?= $lexEuSelected ? ' tag-filter-pill-active' : '' ?>"<?= $lexEuSelected ? ' style="background-color: #f5f562;"' : '' ?>>
                                 <input type="checkbox" name="lex_sources[]" value="eu" <?= $lexEuSelected ? 'checked' : '' ?> onchange="this.form.submit()">
                                 <span>🇪🇺 EU Lex</span>
                             </label>
-                            <label class="tag-filter-pill<?= $lexChSelected ? ' tag-filter-pill-active' : '' ?>"<?= $lexChSelected ? ' style="background-color: #B2C2A2;"' : '' ?>>
+                            <label class="tag-filter-pill<?= $lexChSelected ? ' tag-filter-pill-active' : '' ?>"<?= $lexChSelected ? ' style="background-color: #f5f562;"' : '' ?>>
                                 <input type="checkbox" name="lex_sources[]" value="ch" <?= $lexChSelected ? 'checked' : '' ?> onchange="this.form.submit()">
                                 <span>🇨🇭 CH Lex</span>
                             </label>
@@ -187,7 +187,7 @@
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
-                                <span class="entry-tag" style="background-color: #B2C2A2; border-color: #8fa87a;"><?= $lexSourceEmoji ?> <?= $lexSourceLabel ?></span>
+                                <span class="entry-tag" style="background-color: #f5f562; border-color: #000000;"><?= $lexSourceEmoji ?> <?= $lexSourceLabel ?></span>
                                 <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($lexDocType) ?></span>
                             </div>
                             <h3 class="entry-title">

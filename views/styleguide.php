@@ -204,8 +204,8 @@
                 <div class="color-swatch" style="background-color: #C5B4D1;">
                     <div class="color-swatch-info">#C5B4D1<br>Substack Tags</div>
                 </div>
-                <div class="color-swatch" style="background-color: #B2C2A2;">
-                    <div class="color-swatch-info">#B2C2A2<br>Lex Tags</div>
+                <div class="color-swatch" style="background-color: #f5f562;">
+                    <div class="color-swatch-info">#f5f562<br>Lex Tags</div>
                 </div>
             </div>
         </section>
@@ -335,7 +335,7 @@
             <div class="component-demo">
                 <div class="entry-card">
                     <div class="entry-header">
-                        <span class="entry-tag" style="background-color: #B2C2A2; border-color: #8fa87a;">🇨🇭 CH</span>
+                        <span class="entry-tag" style="background-color: #f5f562; border-color: #000000;">🇨🇭 CH</span>
                         <span class="entry-tag" style="background-color: #f5f5f5;">Bundesgesetz</span>
                     </div>
                     <h3 class="entry-title"><a href="#">Bundesgesetz über die Beispielregelung</a></h3>
@@ -378,7 +378,7 @@
             <p>Two filter patterns: checkbox pills (main page, multi-select) and category buttons (RSS, Mail, Substack pages, single-select).</p>
             
             <h3>Checkbox Pills (Main Page)</h3>
-            <p>All tag types in one compact row. Color distinguishes source: RSS #add8e6, Email #FFDBBB, Substack #C5B4D1, Lex #B2C2A2. Pill: 4px 10px padding, 12px font, 1px border.</p>
+            <p>All tag types in one compact row. Color distinguishes source: RSS #add8e6, Email #FFDBBB, Substack #C5B4D1, Lex #f5f562. Pill: 4px 10px padding, 12px font, 1px border.</p>
             <div class="component-demo">
                 <div class="tag-filter-list">
                     <label class="tag-filter-pill" style="background-color: #add8e6;">
@@ -397,7 +397,7 @@
                         <input type="checkbox" checked>
                         <span>Substack Tag</span>
                     </label>
-                    <label class="tag-filter-pill" style="background-color: #B2C2A2;">
+                    <label class="tag-filter-pill" style="background-color: #f5f562;">
                         <input type="checkbox" checked>
                         <span>Lex Tag</span>
                     </label>

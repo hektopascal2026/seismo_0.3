@@ -18,7 +18,7 @@
                 Feed
             </a>
             <a href="?action=feeds" class="nav-link">RSS</a>
-            <a href="?action=lex" class="nav-link active" style="background-color: #B2C2A2; color: #000000;">Lex</a>
+            <a href="?action=lex" class="nav-link active" style="background-color: #f5f562; color: #000000;">Lex</a>
             <a href="?action=mail" class="nav-link">Mail</a>
             <a href="?action=substack" class="nav-link">Substack</a>
             <a href="?action=settings" class="nav-link">Settings</a>
@@ -47,12 +47,12 @@
             <div class="tag-filter-section" style="margin-bottom: 16px;">
                 <div class="tag-filter-list">
                     <?php $euActive = in_array('eu', $activeSources); ?>
-                    <label class="tag-filter-pill<?= $euActive ? ' tag-filter-pill-active' : '' ?>"<?= $euActive ? ' style="background-color: #B2C2A2;"' : '' ?>>
+                    <label class="tag-filter-pill<?= $euActive ? ' tag-filter-pill-active' : '' ?>"<?= $euActive ? ' style="background-color: #f5f562;"' : '' ?>>
                         <input type="checkbox" name="sources[]" value="eu" <?= $euActive ? 'checked' : '' ?> onchange="this.form.submit()">
                         <span>🇪🇺 EU</span>
                     </label>
                     <?php $chActive = in_array('ch', $activeSources); ?>
-                    <label class="tag-filter-pill<?= $chActive ? ' tag-filter-pill-active' : '' ?>"<?= $chActive ? ' style="background-color: #B2C2A2;"' : '' ?>>
+                    <label class="tag-filter-pill<?= $chActive ? ' tag-filter-pill-active' : '' ?>"<?= $chActive ? ' style="background-color: #f5f562;"' : '' ?>>
                         <input type="checkbox" name="sources[]" value="ch" <?= $chActive ? 'checked' : '' ?> onchange="this.form.submit()">
                         <span>🇨🇭 Switzerland</span>
                     </label>
@@ -98,7 +98,7 @@
                     <div class="entry-card">
                         <div class="entry-header">
                             <?php if ($showSourceTag): ?>
-                                <span class="entry-tag" style="background-color: #B2C2A2; border-color: #8fa87a;">
+                                <span class="entry-tag" style="background-color: #f5f562; border-color: #000000;">
                                     <?= $sourceEmoji ?> <?= $sourceLabel ?>
                                 </span>
                             <?php else: ?>
