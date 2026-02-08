@@ -72,15 +72,26 @@
 </head>
 <body>
     <div class="container">
-        <!-- Navigation Menu -->
-        <nav class="main-nav">
-            <a href="?action=index" class="nav-link">
-                <svg class="logo-icon" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="16" fill="#FFFFC5"/>
-                    <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Feed
-            </a>
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <span class="top-bar-title">
+                    <a href="?action=index">
+                        <svg class="logo-icon logo-icon-large" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="16" fill="#FFFFC5"/>
+                            <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    About
+                </span>
+                <span class="top-bar-subtitle">Legislative and media monitoring tool</span>
+            </div>
+            <div class="top-bar-actions">
+                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu">&#9776;</button>
+            </div>
+        </div>
+
+        <nav class="nav-drawer" id="navDrawer">
+            <a href="?action=index" class="nav-link">Feed</a>
             <a href="?action=feeds" class="nav-link">RSS</a>
             <a href="?action=lex" class="nav-link">Lex</a>
             <a href="?action=mail" class="nav-link">Mail</a>
@@ -88,11 +99,6 @@
             <a href="?action=settings" class="nav-link">Settings</a>
             <a href="?action=about" class="nav-link active">About</a>
         </nav>
-
-        <header>
-            <h1>About Seismo</h1>
-            <p class="subtitle">Legislative and media monitoring tool</p>
-        </header>
 
         <!-- Overview -->
         <section class="about-section">
@@ -164,5 +170,15 @@
             </p>
         </section>
     </div>
+    <script>
+    (function() {
+        var menuBtn = document.getElementById('menuToggle');
+        var navDrawer = document.getElementById('navDrawer');
+        menuBtn.addEventListener('click', function() {
+            navDrawer.classList.toggle('open');
+            menuBtn.classList.toggle('active');
+        });
+    })();
+    </script>
 </body>
 </html>

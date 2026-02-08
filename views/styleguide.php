@@ -102,15 +102,26 @@
 </head>
 <body>
     <div class="container">
-        <!-- Navigation Menu -->
-        <nav class="main-nav">
-            <a href="?action=index" class="nav-link">
-                <svg class="logo-icon" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="16" fill="#FFFFC5"/>
-                    <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Feed
-            </a>
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <span class="top-bar-title">
+                    <a href="?action=index">
+                        <svg class="logo-icon logo-icon-large" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="16" fill="#FFFFC5"/>
+                            <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    Style Guide
+                </span>
+                <span class="top-bar-subtitle">Design system documentation for Seismo</span>
+            </div>
+            <div class="top-bar-actions">
+                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu">&#9776;</button>
+            </div>
+        </div>
+
+        <nav class="nav-drawer" id="navDrawer">
+            <a href="?action=index" class="nav-link">Feed</a>
             <a href="?action=feeds" class="nav-link">RSS</a>
             <a href="?action=lex" class="nav-link">Lex</a>
             <a href="?action=mail" class="nav-link">Mail</a>
@@ -118,17 +129,6 @@
             <a href="?action=settings" class="nav-link">Settings</a>
             <a href="?action=about" class="nav-link">About</a>
         </nav>
-
-        <header>
-            <h1>
-                <svg class="logo-icon logo-icon-large" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="16" fill="#FFFFC5"/>
-                    <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Style Guide
-            </h1>
-            <p class="subtitle">Design system documentation for Seismo</p>
-        </header>
 
         <!-- Logo -->
         <section class="styleguide-section">
@@ -240,10 +240,10 @@
         <!-- Navigation -->
         <section class="styleguide-section">
             <h2>Navigation</h2>
-            <p>Tab bar with 2px black border. Adjacent tabs overlap by 2px (<code>margin-left: -2px</code>) so shared borders stay 2px. Active tab: black background, white text. Tabs sit 2px above the bottom border to create the tab effect.</p>
+            <p>Compact top bar with logo, page title, subtitle, and icon buttons (refresh &#x21bb;, search &#x2315;, menu &#9776;). The navigation drawer opens below the top bar as a horizontal row (desktop) or vertical list (mobile). Active page is highlighted with black background.</p>
 
             <div class="component-demo">
-                <nav class="main-nav">
+                <nav class="nav-drawer" style="display: flex;">
                     <a href="#" class="nav-link active">Active</a>
                     <a href="#" class="nav-link">Inactive</a>
                     <a href="#" class="nav-link">Another</a>
@@ -579,6 +579,16 @@
             });
             btn.dataset.expanded = !isExpanded;
             btn.textContent = !isExpanded ? '\u25B2 collapse all' : '\u25BC expand all';
+        });
+    })();
+    </script>
+    <script>
+    (function() {
+        var menuBtn = document.getElementById('menuToggle');
+        var navDrawer = document.getElementById('navDrawer');
+        menuBtn.addEventListener('click', function() {
+            navDrawer.classList.toggle('open');
+            menuBtn.classList.toggle('active');
         });
     })();
     </script>

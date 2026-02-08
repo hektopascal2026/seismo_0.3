@@ -8,15 +8,30 @@
 </head>
 <body>
     <div class="container">
-        <!-- Navigation Menu -->
-        <nav class="main-nav">
-            <a href="?action=index" class="nav-link active">
-                <svg class="logo-icon" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="16" fill="#FFFFC5"/>
-                    <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Feed
-            </a>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <span class="top-bar-title">
+                    <a href="?action=index">
+                        <svg class="logo-icon logo-icon-large" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="16" fill="#FFFFC5"/>
+                            <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                    Seismo
+                </span>
+                <span class="top-bar-subtitle">ein Prototyp von hektopascal.org | v0.2.3</span>
+            </div>
+            <div class="top-bar-actions">
+                <a href="?action=refresh_all_feeds" class="top-bar-btn" title="Refresh all sources">&#x21bb;</a>
+                <button type="button" class="top-bar-btn" id="searchToggle" title="Search">&#x2315;</button>
+                <button type="button" class="top-bar-btn" id="menuToggle" title="Menu">&#9776;</button>
+            </div>
+        </div>
+
+        <!-- Navigation Drawer -->
+        <nav class="nav-drawer" id="navDrawer">
+            <a href="?action=index" class="nav-link active">Feed</a>
             <a href="?action=feeds" class="nav-link">RSS</a>
             <a href="?action=lex" class="nav-link">Lex</a>
             <a href="?action=mail" class="nav-link">Mail</a>
@@ -25,16 +40,18 @@
             <a href="?action=about" class="nav-link">About</a>
         </nav>
 
-        <header>
-            <h1>
-                <svg class="logo-icon logo-icon-large" width="48" height="32" viewBox="0 0 24 16" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="24" height="16" fill="#FFFFC5"/>
-                    <path d="M0,8 L4,12 L6,4 L10,10 L14,2 L18,8 L20,6 L24,8" stroke="#000000" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Seismo
-            </h1>
-            <p class="subtitle">ein Prototyp von hektopascal.org | v0.2.3</p>
-        </header>
+        <!-- Search Drawer -->
+        <div class="search-drawer" id="searchDrawer">
+            <form method="GET" class="search-form">
+                <input type="hidden" name="action" value="index">
+                <input type="hidden" name="tags_submitted" value="1">
+                <input type="search" name="q" placeholder="Search entries..." class="search-input" value="<?= htmlspecialchars($searchQuery ?? '') ?>" style="min-width: 0;">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <?php if (!empty($searchQuery) || !empty($selectedTags) || !empty($selectedEmailTags)): ?>
+                    <a href="?action=index" class="btn btn-secondary">Clear</a>
+                <?php endif; ?>
+            </form>
+        </div>
 
         <?php if (isset($_SESSION['success'])): ?>
             <div class="message message-success"><?= htmlspecialchars($_SESSION['success']) ?></div>
@@ -46,15 +63,13 @@
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
-        <!-- Search Box -->
+        <!-- Tag Filters -->
         <div class="search-section">
-            <form method="GET" class="search-form">
+            <form method="GET">
                 <input type="hidden" name="action" value="index">
                 <input type="hidden" name="tags_submitted" value="1">
-                <input type="search" name="q" placeholder="Search..." class="search-input" value="<?= htmlspecialchars($searchQuery ?? '') ?>">
-                <button type="submit" class="btn btn-primary">Search</button>
-                <?php if (!empty($searchQuery) || !empty($selectedTags) || !empty($selectedEmailTags)): ?>
-                    <a href="?action=index" class="btn btn-secondary">Clear</a>
+                <?php if (!empty($searchQuery)): ?>
+                    <input type="hidden" name="q" value="<?= htmlspecialchars($searchQuery) ?>">
                 <?php endif; ?>
 
                 <?php if (!empty($tags) || !empty($emailTags) || !empty($substackTags) || !empty($selectedLexSources)): ?>
@@ -331,6 +346,29 @@
             });
             btn.dataset.expanded = !isExpanded;
             btn.textContent = !isExpanded ? '\u25B2 collapse all' : '\u25BC expand all';
+        });
+    })();
+    </script>
+    <script>
+    // Top bar toggles
+    (function() {
+        var menuBtn = document.getElementById('menuToggle');
+        var navDrawer = document.getElementById('navDrawer');
+        var searchBtn = document.getElementById('searchToggle');
+        var searchDrawer = document.getElementById('searchDrawer');
+
+        menuBtn.addEventListener('click', function() {
+            var isOpen = navDrawer.classList.toggle('open');
+            menuBtn.classList.toggle('active', isOpen);
+            if (isOpen) { searchDrawer.classList.remove('open'); searchBtn.classList.remove('active'); }
+        });
+        searchBtn.addEventListener('click', function() {
+            var isOpen = searchDrawer.classList.toggle('open');
+            searchBtn.classList.toggle('active', isOpen);
+            if (isOpen) {
+                navDrawer.classList.remove('open'); menuBtn.classList.remove('active');
+                searchDrawer.querySelector('input[type="search"]').focus();
+            }
         });
     })();
     </script>
