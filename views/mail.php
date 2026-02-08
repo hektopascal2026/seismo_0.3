@@ -53,7 +53,7 @@
                 <a href="?action=mail"
                    class="category-btn <?= !$selectedEmailTag ? 'active' : '' ?>"
                    <?= !$selectedEmailTag ? 'style="background-color: #FFDBBB;"' : '' ?>>
-                    All Emails
+                    All
                 </a>
                 <?php foreach ($emailTags as $tag): ?>
                     <a href="?action=mail&email_tag=<?= urlencode($tag) ?>"

@@ -75,6 +75,9 @@
                 <?php if (!empty($tags) || !empty($emailTags) || !empty($substackTags) || !empty($selectedLexSources)): ?>
                     <div class="tag-filter-section">
                         <div class="tag-filter-list">
+                            <a href="?action=index" class="tag-filter-pill" style="text-decoration: none;">
+                                <span>Clear</span>
+                            </a>
                             <?php foreach ($tags as $tag): ?>
                                 <?php $isSelected = !empty($selectedTags) && in_array($tag, $selectedTags, true); ?>
                                 <label class="tag-filter-pill<?= $isSelected ? ' tag-filter-pill-active' : '' ?>"<?= $isSelected ? ' style="background-color: #add8e6;"' : '' ?>>

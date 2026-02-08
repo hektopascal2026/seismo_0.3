@@ -47,14 +47,6 @@
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
-        <!-- Add Substack Section -->
-        <div class="add-feed-section">
-            <form method="POST" action="?action=add_substack" class="add-feed-form">
-                <input type="text" name="url" placeholder="Enter Substack URL (e.g., example.substack.com)" required class="feed-input">
-                <button type="submit" class="btn btn-primary">Subscribe</button>
-            </form>
-        </div>
-
         <?php if (!empty($substackCategories)): ?>
         <div class="category-filter-section">
             <div class="category-filter">

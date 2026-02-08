@@ -48,14 +48,6 @@
             <?php unset($_SESSION['error']); ?>
         <?php endif; ?>
 
-        <!-- Add Feed Section -->
-        <div class="add-feed-section">
-            <form method="POST" action="?action=add_feed" class="add-feed-form">
-                <input type="url" name="url" placeholder="Enter RSS feed URL (e.g., https://example.com/feed.xml)" required class="feed-input">
-                <button type="submit" class="btn btn-primary">Add Feed</button>
-            </form>
-        </div>
-
         <?php if (!empty($categories) || isset($selectedCategory)): ?>
         <div class="category-filter-section">
             <div class="category-filter">
