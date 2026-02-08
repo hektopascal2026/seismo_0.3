@@ -8,7 +8,7 @@
     <style>
         .ai-card { background: #fff; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 40px; padding: 20px; }
         .ai-header { border-bottom: 2px solid #eee; margin-bottom: 15px; padding-bottom: 10px; }
-        .ai-meta { font-family: monospace; font-size: 13px; color: #666; }
+        .ai-meta { font-family: monospace; font-size: 12px; color: #000000; }
         .ai-subject { font-size: 18px; font-weight: bold; color: #000; margin-top: 5px; }
         .ai-body { 
             white-space: pre-wrap; 

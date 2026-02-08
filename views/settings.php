@@ -374,18 +374,17 @@
                             </div>
                             <div class="settings-item-actions" style="flex-direction: column; align-items: flex-end; gap: 10px;">
                                 <div style="display: flex; gap: 10px;">
-                                    <a href="?action=toggle_feed&id=<?= $feed['id'] ?>&from=settings" class="btn <?= $feed['disabled'] ? 'btn-success' : 'btn-warning' ?>" style="font-size: 14px; padding: 8px 16px;">
+                                    <a href="?action=toggle_feed&id=<?= $feed['id'] ?>&from=settings" class="btn <?= $feed['disabled'] ? 'btn-success' : 'btn-warning' ?>">
                                         <?= $feed['disabled'] ? 'Enable' : 'Disable' ?>
                                     </a>
                                     <a href="?action=delete_feed&id=<?= $feed['id'] ?>&from=settings" 
                                        class="btn btn-danger" 
-                                       onclick="return confirm('Are you sure you want to unsubscribe from this Substack?');"
-                                       style="font-size: 14px; padding: 8px 16px;">
+                                       onclick="return confirm('Are you sure you want to unsubscribe from this Substack?');">
                                         Delete
                                     </a>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-weight: 600; font-size: 14px;">Tag:</label>
+                                    <label style="font-weight: 600;">Tag:</label>
                                     <div class="tag-input-wrapper">
                                         <input 
                                             type="text" 
@@ -405,17 +404,17 @@
 
             <!-- Substack Config file management -->
             <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 16px;">Config File</h3>
-                <p style="font-size: 13px; color: #666666; margin-bottom: 12px;">
+                <h3 style="margin-top: 0; margin-bottom: 8px;">Config File</h3>
+                <p style="font-size: 12px; margin-bottom: 12px;">
                     Download your Substack subscriptions as JSON, or upload a config file to add/update them in bulk.
                 </p>
                 <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
-                    <a href="?action=download_substack_config" class="btn" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">
+                    <a href="?action=download_substack_config" class="btn" style="text-decoration: none;">
                         Download substack_feeds.json
                     </a>
                     <form method="POST" action="?action=upload_substack_config" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
-                        <input type="file" name="substack_config_file" accept=".json,application/json" style="font-size: 13px; font-family: inherit;">
-                        <button type="submit" class="btn" style="font-size: 14px; padding: 8px 16px;">Upload</button>
+                        <input type="file" name="substack_config_file" accept=".json,application/json" style="font-size: 12px; font-family: inherit;">
+                        <button type="submit" class="btn">Upload</button>
                     </form>
                 </div>
             </div>
@@ -424,7 +423,7 @@
         <!-- Lex Section -->
         <section class="settings-section" id="lex-settings">
             <h2 style="background-color: #f5f562; padding: 8px 14px; display: inline-block;">Lex</h2>
-            <p style="margin: 8px 0 16px; color: #666666; font-size: 14px;">
+            <p style="margin: 8px 0 16px; font-size: 12px;">
                 Configure how Seismo queries EU and Swiss legislative databases via SPARQL.
             </p>
 
@@ -433,7 +432,7 @@
                 <div style="margin-bottom: 24px; padding: 16px; border: 2px solid #000000; background: #fafafa;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                         <label style="font-weight: 700; font-size: 18px;">🇪🇺 EUR-Lex</label>
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
                             <input type="checkbox" name="eu_enabled" value="1" <?= ($lexConfig['eu']['enabled'] ?? true) ? 'checked' : '' ?>>
                             Enabled
                         </label>
@@ -441,7 +440,7 @@
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Language</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Language</label>
                             <select name="eu_language" style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px;">
                                 <?php
                                 $euLangs = ['ENG' => 'English', 'DEU' => 'Deutsch', 'FRA' => 'Français', 'ITA' => 'Italiano'];
@@ -452,43 +451,43 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Document class</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Document class</label>
                             <input type="text" name="eu_document_class" value="<?= htmlspecialchars($lexConfig['eu']['document_class'] ?? 'cdm:legislation_secondary') ?>" 
-                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 13px; box-sizing: border-box;">
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 12px; box-sizing: border-box;">
                         </div>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Lookback (days)</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Lookback (days)</label>
                             <input type="number" name="eu_lookback_days" value="<?= (int)($lexConfig['eu']['lookback_days'] ?? 90) ?>" min="1" max="365"
                                    style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Max results</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Max results</label>
                             <input type="number" name="eu_limit" value="<?= (int)($lexConfig['eu']['limit'] ?? 100) ?>" min="1" max="500"
                                    style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
                         </div>
                     </div>
                     
                     <div>
-                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Notes</label>
+                        <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Notes</label>
                         <textarea name="eu_notes" rows="2" placeholder="Optional notes about this query scope..."
-                                  style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 13px; resize: vertical; box-sizing: border-box;"><?= htmlspecialchars($lexConfig['eu']['notes'] ?? '') ?></textarea>
+                                  style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 12px; resize: vertical; box-sizing: border-box;"><?= htmlspecialchars($lexConfig['eu']['notes'] ?? '') ?></textarea>
                     </div>
                     
-                    <div style="margin-top: 8px; font-size: 12px; color: #888;">
-                        Endpoint: <code style="font-size: 11px;"><?= htmlspecialchars($lexConfig['eu']['endpoint'] ?? '') ?></code>
+                    <div style="margin-top: 8px; font-size: 12px;">
+                        Endpoint: <code style="font-size: 12px;"><?= htmlspecialchars($lexConfig['eu']['endpoint'] ?? '') ?></code>
                     </div>
-                    <div style="margin-top: 6px; font-size: 12px; color: #888; line-height: 1.6;">
+                    <div style="margin-top: 6px; font-size: 12px; line-height: 1.6;">
                         Reference:
-                        <a href="https://op.europa.eu/en/web/eu-vocabularies/cdm" target="_blank" rel="noopener" style="color: #0066cc;">CDM ontology</a>
+                        <a href="https://op.europa.eu/en/web/eu-vocabularies/cdm" target="_blank" rel="noopener" style="text-decoration: underline;">CDM ontology</a>
                         &middot;
-                        <a href="https://eur-lex.europa.eu/content/tools/webservices/SearchWebServiceUserManual_v2.00.pdf" target="_blank" rel="noopener" style="color: #0066cc;">EUR-Lex web services manual</a>
+                        <a href="https://eur-lex.europa.eu/content/tools/webservices/SearchWebServiceUserManual_v2.00.pdf" target="_blank" rel="noopener" style="text-decoration: underline;">EUR-Lex web services manual</a>
                         &middot;
-                        <a href="https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/resource-type" target="_blank" rel="noopener" style="color: #0066cc;">EU resource-type vocabulary</a>
+                        <a href="https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/resource-type" target="_blank" rel="noopener" style="text-decoration: underline;">EU resource-type vocabulary</a>
                         &middot;
-                        <a href="https://publications.europa.eu/webapi/rdf/sparql" target="_blank" rel="noopener" style="color: #0066cc;">SPARQL endpoint</a>
+                        <a href="https://publications.europa.eu/webapi/rdf/sparql" target="_blank" rel="noopener" style="text-decoration: underline;">SPARQL endpoint</a>
                     </div>
                 </div>
 
@@ -496,7 +495,7 @@
                 <div style="margin-bottom: 24px; padding: 16px; border: 2px solid #000000; background: #fafafa;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                         <label style="font-weight: 700; font-size: 18px;">🇨🇭 Fedlex</label>
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; cursor: pointer;">
                             <input type="checkbox" name="ch_enabled" value="1" <?= ($lexConfig['ch']['enabled'] ?? true) ? 'checked' : '' ?>>
                             Enabled
                         </label>
@@ -504,7 +503,7 @@
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Language</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Language</label>
                             <select name="ch_language" style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px;">
                                 <?php
                                 $chLangs = ['DEU' => 'Deutsch', 'FRA' => 'Français', 'ITA' => 'Italiano', 'ENG' => 'English'];
@@ -515,7 +514,7 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Lookback (days)</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Lookback (days)</label>
                             <input type="number" name="ch_lookback_days" value="<?= (int)($lexConfig['ch']['lookback_days'] ?? 90) ?>" min="1" max="365"
                                    style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
                         </div>
@@ -523,7 +522,7 @@
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                         <div>
-                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Max results</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Max results</label>
                             <input type="number" name="ch_limit" value="<?= (int)($lexConfig['ch']['limit'] ?? 100) ?>" min="1" max="500"
                                    style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
                         </div>
@@ -531,37 +530,37 @@
                     </div>
                     
                     <div style="margin-bottom: 12px;">
-                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Resource types (comma-separated IDs)</label>
+                        <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Resource types (comma-separated IDs)</label>
                         <?php
                         $rtIds = array_map(function($rt) { return is_array($rt) ? $rt['id'] : $rt; }, $lexConfig['ch']['resource_types'] ?? []);
                         ?>
                         <input type="text" name="ch_resource_types" value="<?= htmlspecialchars(implode(', ', $rtIds)) ?>"
-                               style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 13px; box-sizing: border-box;">
-                        <div style="margin-top: 6px; font-size: 12px; color: #888; line-height: 1.6;">
+                               style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 12px; box-sizing: border-box;">
+                        <div style="margin-top: 6px; font-size: 12px; line-height: 1.6;">
                             <?php foreach (($lexConfig['ch']['resource_types'] ?? []) as $rt): ?>
-                                <span style="display: inline-block; background: #f0f0f0; padding: 2px 8px; margin: 2px 4px 2px 0; border: 1px solid #ddd; font-family: monospace; font-size: 11px;">
+                                <span style="display: inline-block; background: #f0f0f0; padding: 2px 8px; margin: 2px 4px 2px 0; border: 1px solid #ddd; font-family: monospace; font-size: 12px;">
                                     <?= (int)(is_array($rt) ? $rt['id'] : $rt) ?> = <?= htmlspecialchars(is_array($rt) ? ($rt['label'] ?? '?') : '?') ?>
                                 </span>
                             <?php endforeach; ?>
                         </div>
-                        <div style="margin-top: 8px; font-size: 12px; color: #888; line-height: 1.6;">
+                        <div style="margin-top: 8px; font-size: 12px; line-height: 1.6;">
                             Browse all available IDs:
-                            <a href="https://fedlex.data.admin.ch/vocabularies/de/page/resource-type" target="_blank" rel="noopener" style="color: #0066cc;">Fedlex vocabulary: resource-type</a>
+                            <a href="https://fedlex.data.admin.ch/vocabularies/de/page/resource-type" target="_blank" rel="noopener" style="text-decoration: underline;">Fedlex vocabulary: resource-type</a>
                             &middot;
-                            <a href="https://fedlex.data.admin.ch/en-CH/home/models" target="_blank" rel="noopener" style="color: #0066cc;">JOLux data model</a>
+                            <a href="https://fedlex.data.admin.ch/en-CH/home/models" target="_blank" rel="noopener" style="text-decoration: underline;">JOLux data model</a>
                             &middot;
-                            <a href="https://github.com/swiss/fedlex-sparql" target="_blank" rel="noopener" style="color: #0066cc;">SPARQL tutorial</a>
+                            <a href="https://github.com/swiss/fedlex-sparql" target="_blank" rel="noopener" style="text-decoration: underline;">SPARQL tutorial</a>
                         </div>
                     </div>
                     
                     <div>
-                        <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 4px;">Notes</label>
+                        <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Notes</label>
                         <textarea name="ch_notes" rows="2" placeholder="Optional notes about this query scope..."
-                                  style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 13px; resize: vertical; box-sizing: border-box;"><?= htmlspecialchars($lexConfig['ch']['notes'] ?? '') ?></textarea>
+                                  style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 12px; resize: vertical; box-sizing: border-box;"><?= htmlspecialchars($lexConfig['ch']['notes'] ?? '') ?></textarea>
                     </div>
                     
-                    <div style="margin-top: 8px; font-size: 12px; color: #888;">
-                        Endpoint: <code style="font-size: 11px;"><?= htmlspecialchars($lexConfig['ch']['endpoint'] ?? '') ?></code>
+                    <div style="margin-top: 8px; font-size: 12px;">
+                        Endpoint: <code style="font-size: 12px;"><?= htmlspecialchars($lexConfig['ch']['endpoint'] ?? '') ?></code>
                     </div>
                 </div>
 
@@ -572,17 +571,17 @@
 
             <!-- Config file management -->
             <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 16px;">Config File</h3>
-                <p style="font-size: 13px; color: #666666; margin-bottom: 12px;">
+                <h3 style="margin-top: 0; margin-bottom: 10px;">Config File</h3>
+                <p style="font-size: 12px; margin-bottom: 12px;">
                     Download the current configuration as JSON, or upload a config file to apply.
                 </p>
                 <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
-                    <a href="?action=download_lex_config" class="btn" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">
+                    <a href="?action=download_lex_config" class="btn" style="text-decoration: none;">
                         Download lex_config.json
                     </a>
                     <form method="POST" action="?action=upload_lex_config" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
-                        <input type="file" name="lex_config_file" accept=".json,application/json" style="font-size: 13px; font-family: inherit;">
-                        <button type="submit" class="btn" style="font-size: 14px; padding: 8px 16px;">Upload</button>
+                        <input type="file" name="lex_config_file" accept=".json,application/json" style="font-size: 12px; font-family: inherit;">
+                        <button type="submit" class="btn">Upload</button>
                     </form>
                 </div>
             </div>
