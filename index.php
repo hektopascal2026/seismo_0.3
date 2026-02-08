@@ -1915,17 +1915,8 @@ function handleDeleteEmail($pdo) {
  * Queries for recent finalized secondary legislation (regulations, directives, decisions).
  */
 function refreshLexItems($pdo) {
-    // Determine "since" date: last fetch minus 7 days overlap, or 90 days ago on first run
+    // Always look back 90 days to ensure we catch all items and update any corrected dates
     $sinceDate = date('Y-m-d', strtotime('-90 days'));
-    try {
-        $lastFetchStmt = $pdo->query("SELECT MAX(fetched_at) as last_fetch FROM lex_items");
-        $lastFetchRow = $lastFetchStmt->fetch();
-        if ($lastFetchRow && $lastFetchRow['last_fetch']) {
-            $sinceDate = date('Y-m-d', strtotime($lastFetchRow['last_fetch'] . ' -7 days'));
-        }
-    } catch (PDOException $e) {
-        // Table might not exist yet, use default
-    }
     
     $sparqlQuery = '
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
@@ -1999,17 +1990,8 @@ function parseCelexType($celex) {
  * Queries for recent Acts (Bundesgesetze, Verordnungen, Bundesbeschlüsse, etc.).
  */
 function refreshFedlexItems($pdo) {
-    // Determine "since" date: last CH fetch minus 7 days overlap, or 90 days ago on first run
+    // Always look back 90 days to ensure we catch all items and update any corrected dates
     $sinceDate = date('Y-m-d', strtotime('-90 days'));
-    try {
-        $lastFetchStmt = $pdo->query("SELECT MAX(fetched_at) as last_fetch FROM lex_items WHERE source = 'ch'");
-        $lastFetchRow = $lastFetchStmt->fetch();
-        if ($lastFetchRow && $lastFetchRow['last_fetch']) {
-            $sinceDate = date('Y-m-d', strtotime($lastFetchRow['last_fetch'] . ' -7 days'));
-        }
-    } catch (PDOException $e) {
-        // Table might not exist yet, use default
-    }
     
     // Resource types to fetch (key legislation types):
     // 21=Bundesgesetz, 22=Dringliches Bundesgesetz, 29=Verordnung BR,
