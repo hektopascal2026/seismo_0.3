@@ -135,12 +135,9 @@
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span class="entry-tag" style="<?= $feedTagColor ?>"><?= htmlspecialchars($item['feed_title']) ?></span>
-                                    <?php if (!empty($item['feed_category']) && $item['feed_category'] !== 'unsortiert'): ?>
-                                        <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($item['feed_category']) ?></span>
-                                    <?php endif; ?>
-                                </div>
+                                <?php if (!empty($item['feed_category']) && $item['feed_category'] !== 'unsortiert'): ?>
+                                    <span class="entry-tag" style="<?= $feedTagColor ?>"><?= htmlspecialchars($item['feed_category']) ?></span>
+                                <?php endif; ?>
                             </div>
                             <h3 class="entry-title">
                                 <a href="<?= htmlspecialchars($item['link']) ?>" target="_blank" rel="noopener">
@@ -236,12 +233,9 @@
                         ?>
                         <div class="entry-card">
                             <div class="entry-header">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($fromDisplay) ?></span>
-                                    <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
-                                        <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($email['sender_tag']) ?></span>
-                                    <?php endif; ?>
-                                </div>
+                                <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
+                                    <span class="entry-tag" style="background-color: #FFDBBB; border-color: #e0b897;"><?= htmlspecialchars($email['sender_tag']) ?></span>
+                                <?php endif; ?>
                             </div>
                             <h3 class="entry-title">
                                 <?php if (!empty($searchQuery)): ?>
