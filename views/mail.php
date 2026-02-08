@@ -75,7 +75,7 @@
                         Refreshed: Never
                     <?php endif; ?>
                 </h2>
-                <button class="btn btn-secondary entry-expand-all-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand all</button>
+                <button class="btn btn-secondary entry-expand-all-btn">&#9660; expand all</button>
             </div>
 
             <?php if (!empty($mailTableError)): ?>
@@ -119,13 +119,13 @@
                         <div class="entry-actions">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <?php if ($hasMore): ?>
-                                    <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                    <button class="btn btn-secondary entry-expand-btn">&#9660; expand</button>
                                 <?php endif; ?>
                                 <?php if (isset($email['id'])): ?>
                                     <a href="?action=delete_email&id=<?= (int)$email['id'] ?>&confirm=yes" 
                                        class="btn btn-danger" 
                                        onclick="return confirm('Are you sure you want to delete this email? This action cannot be undone.');"
-                                       style="font-size: 14px; padding: 8px 16px;">
+                                       >
                                         Delete Email
                                     </a>
                                 <?php endif; ?>

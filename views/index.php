@@ -120,9 +120,9 @@
                 <div class="section-title-row">
                     <h2 class="section-title">
                         Search Results<?= $searchResultsCount !== null ? ' (' . $searchResultsCount . ')' : '' ?>
-                        <span style="font-weight: 400; font-size: 18px; color: #666;">for "<?= htmlspecialchars($searchQuery) ?>"</span>
+                        <span style="font-weight: 400;">for "<?= htmlspecialchars($searchQuery) ?>"</span>
                     </h2>
-                    <button class="btn btn-secondary entry-expand-all-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand all</button>
+                    <button class="btn btn-secondary entry-expand-all-btn">&#9660; expand all</button>
                 </div>
             <?php else: ?>
                 <div class="section-title-row">
@@ -133,7 +133,7 @@
                             Refreshed: Never
                         <?php endif; ?>
                     </h2>
-                    <button class="btn btn-secondary entry-expand-all-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand all</button>
+                    <button class="btn btn-secondary entry-expand-all-btn">&#9660; expand all</button>
                 </div>
             <?php endif; ?>
             
@@ -181,7 +181,7 @@
                             <div class="entry-actions">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <?php if ($hasMore): ?>
-                                        <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                        <button class="btn btn-secondary entry-expand-btn">&#9660; expand</button>
                                     <?php endif; ?>
                                 </div>
                                 <?php if ($item['published_date']): ?>
@@ -216,7 +216,7 @@
                             </h3>
                             <div class="entry-actions">
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($lexItem['celex'] ?? '') ?></span>
+                                    <span style="font-family: monospace;"><?= htmlspecialchars($lexItem['celex'] ?? '') ?></span>
                                     <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener" class="entry-link"><?= $lexIsEu ? 'EUR-Lex →' : 'Fedlex →' ?></a>
                                 </div>
                                 <?php if ($lexDate): ?>
@@ -272,7 +272,7 @@
                             <div class="entry-actions">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <?php if ($hasMore): ?>
-                                        <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                        <button class="btn btn-secondary entry-expand-btn">&#9660; expand</button>
                                     <?php endif; ?>
                                 </div>
                                 <?php if ($createdAt): ?>

@@ -17,7 +17,7 @@
         }
         
         .about-section h2 {
-            font-size: 28px;
+            font-size: 18px;
             font-weight: 700;
             margin-bottom: 12px;
             color: #000000;
@@ -25,9 +25,9 @@
         
         .about-section p,
         .about-section li {
-            font-size: 16px;
+            font-size: 12px;
             line-height: 1.6;
-            color: #333333;
+            color: #000000;
         }
         
         .about-section ul {
@@ -47,7 +47,7 @@
         .about-source-label {
             display: inline-block;
             padding: 2px 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             margin-right: 8px;
             vertical-align: middle;
@@ -55,8 +55,8 @@
 
         .about-version {
             font-family: monospace;
-            font-size: 14px;
-            color: #666666;
+            font-size: 12px;
+            color: #000000;
         }
 
         .about-link {
@@ -66,7 +66,7 @@
         }
 
         .about-link:hover {
-            color: #666666;
+            color: #000000;
         }
     </style>
 </head>

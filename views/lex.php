@@ -122,7 +122,7 @@
                         </h3>
                         <div class="entry-actions">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <span style="font-size: 13px; color: #666666; font-family: monospace;"><?= htmlspecialchars($item['celex']) ?></span>
+                                <span style="font-family: monospace;"><?= htmlspecialchars($item['celex']) ?></span>
                                 <a href="<?= $itemUrl ?>" target="_blank" rel="noopener" class="entry-link"><?= $linkLabel ?></a>
                             </div>
                             <?php if ($item['document_date']): ?>

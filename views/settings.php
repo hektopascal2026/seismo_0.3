@@ -17,7 +17,7 @@
         }
         
         .settings-section h2 {
-            font-size: 28px;
+            font-size: 18px;
             font-weight: 700;
             margin-bottom: 16px;
             color: #000000;
@@ -46,15 +46,15 @@
         }
         
         .settings-item-title {
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 700;
             margin-bottom: 4px;
             color: #000000;
         }
         
         .settings-item-meta {
-            font-size: 14px;
-            color: #666666;
+            font-size: 12px;
+            color: #000000;
             margin-bottom: 4px;
         }
         
@@ -63,7 +63,7 @@
             padding: 4px 12px;
             background-color: #f5f5f5;
             border: 1px solid #000000;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             margin-top: 8px;
         }
@@ -205,18 +205,17 @@
                             </div>
                             <div class="settings-item-actions" style="flex-direction: column; align-items: flex-end; gap: 10px;">
                                 <div style="display: flex; gap: 10px;">
-                                    <a href="?action=toggle_feed&id=<?= $feed['id'] ?>&from=settings" class="btn <?= $feed['disabled'] ? 'btn-success' : 'btn-warning' ?>" style="font-size: 14px; padding: 8px 16px;">
+                                    <a href="?action=toggle_feed&id=<?= $feed['id'] ?>&from=settings" class="btn <?= $feed['disabled'] ? 'btn-success' : 'btn-warning' ?>">
                                         <?= $feed['disabled'] ? 'Enable' : 'Disable' ?>
                                     </a>
                                     <a href="?action=delete_feed&id=<?= $feed['id'] ?>&from=settings" 
                                        class="btn btn-danger" 
-                                       onclick="return confirm('Are you sure you want to delete this feed? This action cannot be undone.');"
-                                       style="font-size: 14px; padding: 8px 16px;">
+                                       onclick="return confirm('Are you sure you want to delete this feed? This action cannot be undone.');">
                                         Delete
                                     </a>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-weight: 600; font-size: 14px;">Tag:</label>
+                                    <label style="font-weight: 600;">Tag:</label>
                                     <div class="tag-input-wrapper">
                                         <input 
                                             type="text" 
@@ -237,17 +236,17 @@
 
             <!-- RSS Config file management -->
             <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
-                <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 16px;">Config File</h3>
-                <p style="font-size: 13px; color: #666666; margin-bottom: 12px;">
+                <h3 style="margin-top: 0; margin-bottom: 8px;">Config File</h3>
+                <p style="font-size: 12px; margin-bottom: 12px;">
                     Download your RSS feeds as JSON, or upload a config file to add/update feeds in bulk.
                 </p>
                 <div style="display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;">
-                    <a href="?action=download_rss_config" class="btn" style="text-decoration: none; font-size: 14px; padding: 8px 16px;">
+                    <a href="?action=download_rss_config" class="btn" style="text-decoration: none;">
                         Download rss_feeds.json
                     </a>
                     <form method="POST" action="?action=upload_rss_config" enctype="multipart/form-data" style="display: flex; gap: 8px; align-items: center;">
-                        <input type="file" name="rss_config_file" accept=".json,application/json" style="font-size: 13px; font-family: inherit;">
-                        <button type="submit" class="btn" style="font-size: 14px; padding: 8px 16px;">Upload</button>
+                        <input type="file" name="rss_config_file" accept=".json,application/json" style="font-size: 12px; font-family: inherit;">
+                        <button type="submit" class="btn">Upload</button>
                     </form>
                 </div>
             </div>
@@ -297,19 +296,19 @@
                                 <div style="display: flex; gap: 10px;">
                                     <form method="POST" action="?action=toggle_sender" style="margin: 0;">
                                         <input type="hidden" name="email" value="<?= htmlspecialchars($sender['email']) ?>">
-                                        <button type="submit" class="btn <?= $sender['disabled'] ? 'btn-success' : 'btn-warning' ?>" style="font-size: 14px; padding: 8px 16px;">
+                                        <button type="submit" class="btn <?= $sender['disabled'] ? 'btn-success' : 'btn-warning' ?>">
                                             <?= $sender['disabled'] ? 'Enable' : 'Disable' ?>
                                         </button>
                                     </form>
                                     <form method="POST" action="?action=delete_sender" style="margin: 0;">
                                         <input type="hidden" name="email" value="<?= htmlspecialchars($sender['email']) ?>">
-                                        <button type="submit" class="btn btn-danger" style="font-size: 14px; padding: 8px 16px;">
+                                        <button type="submit" class="btn btn-danger">
                                             Remove
                                         </button>
                                     </form>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <label style="font-weight: 600; font-size: 14px;">Tag:</label>
+                                    <label style="font-weight: 600;">Tag:</label>
                                     <div class="tag-input-wrapper">
                                         <input 
                                             type="text" 

@@ -84,7 +84,7 @@
                         Refreshed: Never
                     <?php endif; ?>
                 </h2>
-                <button class="btn btn-secondary entry-expand-all-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand all</button>
+                <button class="btn btn-secondary entry-expand-all-btn">&#9660; expand all</button>
             </div>
 
             <?php if (empty($rssItems)): ?>
@@ -126,7 +126,7 @@
                         <div class="entry-actions">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <?php if ($hasMore): ?>
-                                    <button class="btn btn-secondary entry-expand-btn" style="font-size: 14px; padding: 8px 16px;">&#9660; expand</button>
+                                    <button class="btn btn-secondary entry-expand-btn">&#9660; expand</button>
                                 <?php endif; ?>
                             </div>
                             <?php if ($item['published_date']): ?>

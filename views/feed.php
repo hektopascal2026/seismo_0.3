@@ -75,9 +75,9 @@
                     <article class="entry-card">
                         <div class="entry-header">
                             <?php if ($item['author']): ?>
-                                <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;"><?= htmlspecialchars($item['author']) ?></span>
+                                <span class="entry-tag" style="background-color: #add8e6;"><?= htmlspecialchars($item['author']) ?></span>
                             <?php else: ?>
-                                <span class="entry-tag" style="background-color: #add8e6; border-color: #8fc1d4;"><?= htmlspecialchars($feed['title']) ?></span>
+                                <span class="entry-tag" style="background-color: #add8e6;"><?= htmlspecialchars($feed['title']) ?></span>
                             <?php endif; ?>
                         </div>
                         <h3 class="entry-title">

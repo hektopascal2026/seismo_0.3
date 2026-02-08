@@ -1,4 +1,4 @@
-/* Base Styles */
+/* ═══ Base ═══ */
 * {
     margin: 0;
     padding: 0;
@@ -10,7 +10,7 @@ body {
     background-color: #ffffff;
     color: #000000;
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 14px;                 /* medium — default */
 }
 
 .container {
@@ -19,7 +19,12 @@ body {
     padding: 20px 20px;
 }
 
-/* Logo */
+/* ═══ Font-size tokens ═══ */
+/* big   = 18px  — titles, nav, h2, buttons                    */
+/* medium = 14px — body text, card content, inputs, descriptions */
+/* small = 12px  — tags, pills, dates, status lines              */
+
+/* ═══ Logo ═══ */
 .logo-icon {
     display: inline-block;
     vertical-align: middle;
@@ -32,7 +37,7 @@ body {
     height: 24px;
 }
 
-/* ─── Top Bar ─── */
+/* ═══ Top Bar ═══ */
 .top-bar {
     display: flex;
     align-items: center;
@@ -51,7 +56,7 @@ body {
 }
 
 .top-bar-title {
-    font-size: 22px;
+    font-size: 18px;                /* big */
     font-weight: 700;
     color: #000000;
     text-decoration: none;
@@ -67,9 +72,9 @@ body {
 }
 
 .top-bar-subtitle {
-    font-size: 13px;
-    color: #666666;
+    font-size: 12px;                /* small */
     font-weight: 400;
+    color: #000000;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -93,7 +98,7 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 18px;                /* big */
     font-family: inherit;
     font-weight: 600;
     text-decoration: none;
@@ -113,7 +118,7 @@ body {
     color: #ffffff;
 }
 
-/* ─── Burger Navigation ─── */
+/* ═══ Navigation Drawer ═══ */
 .nav-drawer {
     display: none;
     border: 2px solid #000000;
@@ -131,7 +136,7 @@ body {
     padding: 10px 20px;
     background-color: #ffffff;
     color: #000000;
-    font-size: 15px;
+    font-size: 18px;                /* big */
     font-weight: 600;
     text-decoration: none;
     display: flex;
@@ -155,7 +160,7 @@ body {
     color: #ffffff;
 }
 
-/* ─── Expandable Search ─── */
+/* ═══ Search Drawer ═══ */
 .search-drawer {
     display: none;
     margin-top: -16px;
@@ -169,41 +174,41 @@ body {
     display: block;
 }
 
-/* Header (kept for pages that still use it, but hidden by default in new layout) */
+/* Header (hidden in new layout) */
 header {
     display: none;
 }
 
 .subtitle {
-    font-size: 13px;
-    color: #666666;
+    font-size: 12px;                /* small */
     font-weight: 400;
+    color: #000000;
 }
 
-/* Typography */
+/* ═══ Typography ═══ */
 h2 {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 18px;                /* big */
+    font-weight: 700;
     color: #000000;
     margin-bottom: 12px;
 }
 
 h3 {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 18px;                /* big */
+    font-weight: 700;
     color: #000000;
     margin-top: 16px;
     margin-bottom: 8px;
 }
 
-/* Forms */
+/* ═══ Forms ═══ */
 .search-input,
 .feed-input {
     padding: 10px 14px;
     border: 2px solid #000000;
     background-color: #ffffff;
     color: #000000;
-    font-size: 16px;
+    font-size: 14px;                /* medium */
     font-family: inherit;
 }
 
@@ -215,7 +220,8 @@ h3 {
 
 .search-input::placeholder,
 .feed-input::placeholder {
-    color: #666666;
+    color: #000000;
+    opacity: 0.4;
 }
 
 .search-form {
@@ -243,13 +249,13 @@ h3 {
     min-width: 300px;
 }
 
-/* Buttons */
+/* ═══ Buttons ═══ */
 .btn {
-    padding: 10px 20px;
+    padding: 8px 16px;
     border: 2px solid #000000;
     background-color: #ffffff;
     color: #000000;
-    font-size: 16px;
+    font-size: 14px;                /* medium */
     font-weight: 600;
     text-decoration: none;
     display: inline-block;
@@ -311,7 +317,7 @@ h3 {
     color: #ffffff;
 }
 
-/* Cards */
+/* ═══ Cards ═══ */
 .entry-card,
 .item-card {
     border: 2px solid #000000;
@@ -325,15 +331,15 @@ h3 {
     box-shadow: 2px 2px 0px #000000;
 }
 
-/* Card Content */
+/* Card header row (tag left, context right) */
 .entry-header,
 .item-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
-    font-size: 13px;
-    color: #666666;
+    font-size: 12px;                /* small */
+    color: #000000;
 }
 
 .entry-feed,
@@ -346,24 +352,24 @@ h3 {
     display: inline-block;
     padding: 4px 10px;
     border: 2px solid #000000;
-    font-size: 12px;
+    font-size: 12px;                /* small */
     font-weight: 500;
+    color: #000000;
 }
 
 .entry-date,
 .item-author {
+    font-size: 12px;                /* small */
     font-style: italic;
+    color: #000000;
 }
 
 .entry-title,
 .item-title {
-    font-size: 20px;
+    font-size: 14px;                /* medium */
     font-weight: 700;
     margin-bottom: 6px;
-}
-
-.item-title {
-    font-size: 22px;
+    color: #000000;
 }
 
 .entry-title a,
@@ -379,26 +385,26 @@ h3 {
 
 .entry-content,
 .item-content {
-    color: #333333;
+    color: #000000;
     line-height: 1.5;
     margin-bottom: 8px;
-    font-size: 15px;
+    font-size: 12px;                /* small */
 }
 
 .feed-description {
-    color: #333333;
+    color: #000000;
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: 12px;                /* small */
     line-height: 1.5;
 }
 
 .entry-link,
 .item-link {
-    display: inline-block;
+    display: inline;
     color: #000000;
     text-decoration: none;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 12px;                /* small */
 }
 
 .entry-link:hover,
@@ -421,12 +427,14 @@ h3 {
     text-decoration: underline;
 }
 
-/* Messages */
+/* ═══ Messages ═══ */
 .message {
     padding: 10px 14px;
     margin-bottom: 12px;
-    border: 1px solid #000000;
+    border: 2px solid #000000;
     background-color: #ffffff;
+    font-size: 12px;                /* small */
+    color: #000000;
 }
 
 .message-success {
@@ -438,11 +446,10 @@ h3 {
 }
 
 .message-info {
-    border-color: #666666;
     background-color: #f5f5f5;
 }
 
-/* Tag Filters */
+/* ═══ Tag Filters ═══ */
 .tag-filter-section {
     width: 100%;
     margin-top: 8px;
@@ -461,7 +468,7 @@ h3 {
     border: 2px solid #000000;
     background-color: #ffffff;
     color: #000000;
-    font-size: 12px;
+    font-size: 12px;                /* small */
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
@@ -479,14 +486,14 @@ h3 {
     background-color: #f5f5f5;
 }
 
-/* Category Filters */
+/* ═══ Category Filters ═══ */
 .category-filter {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #cccccc;
+    border-bottom: 1px solid #000000;
 }
 
 .category-btn {
@@ -494,7 +501,7 @@ h3 {
     border: 2px solid #000000;
     background-color: #ffffff;
     color: #000000;
-    font-size: 13px;
+    font-size: 12px;                /* small */
     font-weight: 500;
     text-decoration: none;
     display: inline-block;
@@ -506,7 +513,7 @@ h3 {
     background-color: #f5f5f5;
 }
 
-/* Layout */
+/* ═══ Layout ═══ */
 .latest-entries-section,
 .items-list {
     display: flex;
@@ -519,7 +526,7 @@ h3 {
     gap: 12px;
 }
 
-/* Actions */
+/* Actions row */
 .feed-actions,
 .feed-actions-top {
     display: flex;
@@ -528,15 +535,15 @@ h3 {
     margin-top: 10px;
 }
 
-/* Empty State */
+/* ═══ Empty State ═══ */
 .empty-state {
     text-align: center;
     padding: 30px 20px;
-    color: #666666;
-    font-size: 16px;
+    color: #000000;
+    font-size: 12px;                /* small */
 }
 
-/* Section Title Row */
+/* ═══ Section Title Row ═══ */
 .section-title-row {
     display: flex;
     justify-content: space-between;
@@ -547,17 +554,17 @@ h3 {
 
 .section-title-row .section-title {
     margin-bottom: 0;
-    font-size: 14px;
+    font-size: 12px;                /* small */
     font-weight: 400;
-    color: #666666;
+    color: #000000;
 }
 
-/* Entry Expand/Collapse */
+/* ═══ Entry Expand/Collapse ═══ */
 .entry-full-content {
     display: none;
-    color: #333333;
+    color: #000000;
     line-height: 1.5;
-    font-size: 15px;
+    font-size: 12px;                /* small */
     margin-bottom: 8px;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -571,19 +578,19 @@ h3 {
     margin-top: 4px;
 }
 
-/* Search Highlight */
+/* ═══ Search Highlight ═══ */
 .search-highlight {
     background-color: #FFFFC5;
     padding: 0;
     font-weight: inherit;
 }
 
-/* Floating Refresh Button (legacy, kept for compat) */
+/* ═══ Legacy (hidden) ═══ */
 .floating-refresh-btn {
     display: none;
 }
 
-/* Tag Inputs (Settings) */
+/* ═══ Tag Inputs (Settings) ═══ */
 .feed-tag-input-wrapper {
     position: relative;
     display: flex;
@@ -596,7 +603,7 @@ h3 {
     border: 2px solid #000000;
     background-color: #ffffff;
     color: #000000;
-    font-size: 14px;
+    font-size: 14px;                /* medium */
     font-family: inherit;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -621,13 +628,13 @@ h3 {
 .feed-tag-indicator {
     position: absolute;
     right: 12px;
-    font-size: 11px;
+    font-size: 12px;                /* small */
     font-weight: 600;
     pointer-events: none;
-    color: #666666;
+    color: #000000;
 }
 
-/* Responsive */
+/* ═══ Responsive ═══ */
 @media (max-width: 768px) {
     .container {
         padding: 12px 12px;
@@ -638,7 +645,7 @@ h3 {
     }
 
     .top-bar-title {
-        font-size: 18px;
+        font-size: 18px;            /* big stays big */
     }
 
     .nav-drawer.open {
@@ -675,7 +682,6 @@ h3 {
 
     .tag-filter-pill {
         padding: 3px 8px;
-        font-size: 11px;
     }
 
     .feed-actions,
