@@ -998,7 +998,16 @@ switch ($action) {
         try {
             $stats['feeds'] = $pdo->query("SELECT COUNT(*) FROM feeds WHERE source_type = 'rss' OR source_type IS NULL")->fetchColumn();
             $stats['feed_items'] = $pdo->query("SELECT COUNT(*) FROM feed_items")->fetchColumn();
-            $stats['emails'] = $pdo->query("SELECT COUNT(*) FROM emails")->fetchColumn();
+            
+            // Find the correct email table (fetched_emails or emails)
+            $emailTable = 'emails';
+            $allTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($allTables as $t) {
+                if (strtolower($t) === 'fetched_emails') { $emailTable = $t; break; }
+                if (strtolower($t) === 'emails') { $emailTable = $t; }
+            }
+            $stats['emails'] = $pdo->query("SELECT COUNT(*) FROM `$emailTable`")->fetchColumn();
+            
             $stats['lex_eu'] = $pdo->query("SELECT COUNT(*) FROM lex_items WHERE source = 'eu'")->fetchColumn();
             $stats['lex_ch'] = $pdo->query("SELECT COUNT(*) FROM lex_items WHERE source = 'ch'")->fetchColumn();
         } catch (PDOException $e) {
