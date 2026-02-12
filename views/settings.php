@@ -139,6 +139,7 @@
             <a href="?action=substack" class="nav-link">Substack</a>
             <a href="?action=settings" class="nav-link active">Settings</a>
             <a href="?action=about" class="nav-link">About</a>
+            <a href="?action=beta" class="nav-link">Beta</a>
         </nav>
 
         <?php if (isset($_SESSION['success'])): ?>

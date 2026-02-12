@@ -1164,6 +1164,12 @@ switch ($action) {
         include 'views/about.php';
         break;
 
+    case 'beta':
+        // Beta page with links to experimental views
+        $lastChangeDate = date('d.m.Y', filemtime(__FILE__));
+        include 'views/beta.php';
+        break;
+
     case 'styleguide':
         // Get last code change date (use modification time of index.php)
         $lastChangeDate = date('d.m.Y', filemtime(__FILE__));
