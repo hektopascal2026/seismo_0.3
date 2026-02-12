@@ -240,7 +240,22 @@ switch ($action) {
     // 2. Fetch Emails
     $emails = getEmailsForIndex($pdo, 50, []);
 
-    // 3. Merge into unified list
+    // 3. Fetch Lex items
+    $lexItems = [];
+    try {
+        $lexItemsStmt = $pdo->query("
+            SELECT *
+            FROM lex_items
+            ORDER BY document_date DESC
+            LIMIT 50
+        ");
+        $lexItems = $lexItemsStmt->fetchAll();
+    } catch (PDOException $e) {
+        // lex_items table might not exist yet
+        $lexItems = [];
+    }
+
+    // 4. Merge into unified list
     $allItems = [];
     foreach ($latestItems as $item) {
         $date = $item['published_date'] ?? $item['cached_at'] ?? 0;
@@ -265,7 +280,28 @@ switch ($action) {
         ];
     }
 
-    // 4. Sort chronologically (Newest First)
+    foreach ($lexItems as $lexItem) {
+        $date = $lexItem['document_date'] ?? $lexItem['created_at'] ?? 0;
+        $source = strtoupper((string)($lexItem['source'] ?? 'eu'));
+        $docType = trim((string)($lexItem['document_type'] ?? 'Legislation'));
+        $celex = trim((string)($lexItem['celex'] ?? ''));
+        $workUri = trim((string)($lexItem['work_uri'] ?? ''));
+
+        $contentParts = [];
+        if ($docType !== '') $contentParts[] = 'Type: ' . $docType;
+        if ($celex !== '') $contentParts[] = 'ID: ' . $celex;
+        if ($workUri !== '') $contentParts[] = 'URI: ' . $workUri;
+
+        $allItems[] = [
+            'source'  => 'LEX: ' . $source,
+            'date'    => $date ? strtotime($date) : 0,
+            'title'   => $lexItem['title'] ?: '(No Title)',
+            'content' => !empty($contentParts) ? implode("\n", $contentParts) : '',
+            'link'    => $lexItem['eurlex_url'] ?: '#'
+        ];
+    }
+
+    // 5. Sort chronologically (Newest First)
     usort($allItems, function($a, $b) {
         return $b['date'] - $a['date'];
     });
