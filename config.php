@@ -264,6 +264,18 @@ function initDatabase() {
         INDEX idx_predicted_label (predicted_label)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     
+    // Create magnitu_labels table for syncing user labels across Magnitu instances
+    $pdo->exec("CREATE TABLE IF NOT EXISTS magnitu_labels (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        entry_type ENUM('feed_item', 'email', 'lex_item') NOT NULL,
+        entry_id INT NOT NULL,
+        label VARCHAR(50) NOT NULL,
+        labeled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_label (entry_type, entry_id),
+        INDEX idx_entry (entry_type, entry_id),
+        INDEX idx_label (label)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    
     // Create magnitu_config table for scoring recipe and connection settings
     $pdo->exec("CREATE TABLE IF NOT EXISTS magnitu_config (
         id INT AUTO_INCREMENT PRIMARY KEY,

@@ -1720,6 +1720,70 @@ switch ($action) {
         ]);
         break;
     
+    case 'magnitu_labels':
+        // GET  — pull all labels
+        // POST — push labels from Magnitu
+        header('Content-Type: application/json');
+        if (!validateMagnituApiKey($pdo)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid API key']);
+            break;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Receive labels from Magnitu
+            $input = json_decode(file_get_contents('php://input'), true);
+            if (!$input || !isset($input['labels'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid JSON body, expected {labels: [...]}']);
+                break;
+            }
+            
+            $upsertStmt = $pdo->prepare("
+                INSERT INTO magnitu_labels (entry_type, entry_id, label, labeled_at)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    label = VALUES(label),
+                    labeled_at = VALUES(labeled_at)
+            ");
+            
+            $inserted = 0;
+            $updated = 0;
+            foreach ($input['labels'] as $lbl) {
+                $entryType = $lbl['entry_type'] ?? '';
+                $entryId = (int)($lbl['entry_id'] ?? 0);
+                $label = $lbl['label'] ?? '';
+                $labeledAt = $lbl['labeled_at'] ?? date('Y-m-d H:i:s');
+                
+                if (!in_array($entryType, ['feed_item', 'email', 'lex_item']) || $entryId <= 0 || $label === '') continue;
+                
+                $upsertStmt->execute([$entryType, $entryId, $label, $labeledAt]);
+                if ($upsertStmt->rowCount() === 1) $inserted++;
+                else $updated++;
+            }
+            
+            echo json_encode([
+                'success' => true,
+                'inserted' => $inserted,
+                'updated' => $updated,
+                'total' => count($input['labels']),
+            ]);
+        } else {
+            // Return all labels
+            try {
+                $stmt = $pdo->query("SELECT entry_type, entry_id, label, labeled_at FROM magnitu_labels ORDER BY labeled_at DESC");
+                $labels = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                $labels = [];
+            }
+            
+            echo json_encode([
+                'labels' => $labels,
+                'total' => count($labels),
+            ]);
+        }
+        break;
+    
     default:
         header('Location: ?action=index');
         break;
