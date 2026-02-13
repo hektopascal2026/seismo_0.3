@@ -85,7 +85,7 @@
                         $hasMore = mb_strlen($fullContent) > 200;
                         $feedTagColor = ($itemWrapper['type'] === 'substack') ? 'background-color: #C5B4D1;' : 'background-color: #add8e6;';
                     ?>
-                    <div class="entry-card magnitu-alert">
+                    <div class="entry-card">
                         <div class="entry-header">
                             <?php if (!empty($item['feed_category']) && $item['feed_category'] !== 'unsortiert'): ?>
                                 <span class="entry-tag" style="<?= $feedTagColor ?>"><?= htmlspecialchars($item['feed_category']) ?></span>
@@ -143,7 +143,7 @@
                         $lexUrl = $lexItem['eurlex_url'] ?? '#';
                         $lexDate = $lexItem['document_date'] ? date('d.m.Y', strtotime($lexItem['document_date'])) : '';
                     ?>
-                    <div class="entry-card magnitu-alert">
+                    <div class="entry-card">
                         <div class="entry-header">
                             <span class="entry-tag" style="background-color: #f5f562; border-color: #000000;"><?= $lexSourceEmoji ?> <?= $lexSourceLabel ?></span>
                             <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($lexDocType) ?></span>
@@ -196,7 +196,7 @@
                         if (mb_strlen($body) > 200) $bodyPreview .= '...';
                         $hasMore = mb_strlen($body) > 200;
                     ?>
-                    <div class="entry-card magnitu-alert">
+                    <div class="entry-card">
                         <div class="entry-header">
                             <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
                                 <span class="entry-tag" style="background-color: #FFDBBB;"><?= htmlspecialchars($email['sender_tag']) ?></span>
