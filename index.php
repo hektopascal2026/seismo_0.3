@@ -159,57 +159,102 @@ switch ($action) {
             $lexItems = [];
         }
         
+        // Load Magnitu scores into a lookup map
+        $scoreMap = []; // keyed by "type:id"
+        try {
+            $scoreStmt = $pdo->query("SELECT entry_type, entry_id, relevance_score, predicted_label, explanation, score_source FROM entry_scores");
+            foreach ($scoreStmt->fetchAll() as $s) {
+                $scoreMap[$s['entry_type'] . ':' . $s['entry_id']] = $s;
+            }
+        } catch (PDOException $e) {
+            // entry_scores table might not exist yet
+        }
+        
+        // Magnitu config: sort preference and alert threshold
+        $magnituSortByRelevance = (bool)(getMagnituConfig($pdo, 'sort_by_relevance') ?? 0);
+        $magnituAlertThreshold = (float)(getMagnituConfig($pdo, 'alert_threshold') ?? 0.75);
+        // Allow user to toggle sort via query param
+        if (isset($_GET['sort'])) {
+            $magnituSortByRelevance = ($_GET['sort'] === 'relevance');
+        }
+        $hasMagnituScores = !empty($scoreMap);
+        
         // Merge and sort by date
         $allItems = [];
         
         // Add feed items (RSS)
         foreach ($latestItems as $item) {
             $dateValue = $item['published_date'] ?? $item['cached_at'] ?? null;
+            $scoreKey = 'feed_item:' . $item['id'];
+            $score = $scoreMap[$scoreKey] ?? null;
             $allItems[] = [
                 'type' => 'feed',
                 'date' => $dateValue ? strtotime($dateValue) : 0,
-                'data' => $item
+                'data' => $item,
+                'score' => $score,
             ];
         }
         
         // Add Substack items
         foreach ($substackItems as $item) {
             $dateValue = $item['published_date'] ?? $item['cached_at'] ?? null;
+            $scoreKey = 'feed_item:' . $item['id'];
+            $score = $scoreMap[$scoreKey] ?? null;
             $allItems[] = [
                 'type' => 'substack',
                 'date' => $dateValue ? strtotime($dateValue) : 0,
-                'data' => $item
+                'data' => $item,
+                'score' => $score,
             ];
         }
         
         // Add emails
         foreach ($emails as $email) {
             $dateValue = $email['date_received'] ?? $email['date_utc'] ?? $email['created_at'] ?? $email['date_sent'] ?? null;
+            $scoreKey = 'email:' . $email['id'];
+            $score = $scoreMap[$scoreKey] ?? null;
             $allItems[] = [
                 'type' => 'email',
                 'date' => $dateValue ? strtotime($dateValue) : 0,
-                'data' => $email
+                'data' => $email,
+                'score' => $score,
             ];
         }
         
         // Add Lex items (EU + CH legislation)
         foreach ($lexItems as $lexItem) {
             $dateValue = $lexItem['document_date'] ?? $lexItem['created_at'] ?? null;
+            $scoreKey = 'lex_item:' . $lexItem['id'];
+            $score = $scoreMap[$scoreKey] ?? null;
             $allItems[] = [
                 'type' => 'lex',
                 'date' => $dateValue ? strtotime($dateValue) : 0,
-                'data' => $lexItem
+                'data' => $lexItem,
+                'score' => $score,
             ];
         }
         
-        // Sort by date (newest first)
-        usort($allItems, function($a, $b) {
-            return $b['date'] - $a['date'];
-        });
+        // Sort: by relevance if enabled and scores exist, otherwise by date
+        if ($magnituSortByRelevance && $hasMagnituScores && empty($searchQuery)) {
+            usort($allItems, function($a, $b) {
+                $scoreA = $a['score']['relevance_score'] ?? -1;
+                $scoreB = $b['score']['relevance_score'] ?? -1;
+                if ($scoreA == $scoreB) return $b['date'] - $a['date']; // tie-break by date
+                return $scoreB <=> $scoreA;
+            });
+        } else {
+            usort($allItems, function($a, $b) {
+                return $b['date'] - $a['date'];
+            });
+        }
         
         // Limit to 30 items total (or more for search)
         $limit = !empty($searchQuery) ? 200 : 30;
         $allItems = array_slice($allItems, 0, $limit);
+        
+        // Score coverage stats for display
+        $scoredCount = count(array_filter($allItems, function($i) { return $i['score'] !== null; }));
+        $totalScored = count($scoreMap);
         
         // Get last feed refresh date/time
         $lastRefreshStmt = $pdo->query("SELECT MAX(last_fetched) as last_refresh FROM feeds WHERE last_fetched IS NOT NULL");
@@ -887,6 +932,15 @@ switch ($action) {
         // Load Lex config for the Lex settings section
         $lexConfig = getLexConfig();
         
+        // Load Magnitu config for the Magnitu settings section
+        $magnituConfig = getAllMagnituConfig($pdo);
+        $magnituScoreStats = ['total' => 0, 'magnitu' => 0, 'recipe' => 0];
+        try {
+            $magnituScoreStats['total'] = (int)$pdo->query("SELECT COUNT(*) FROM entry_scores")->fetchColumn();
+            $magnituScoreStats['magnitu'] = (int)$pdo->query("SELECT COUNT(*) FROM entry_scores WHERE score_source = 'magnitu'")->fetchColumn();
+            $magnituScoreStats['recipe'] = (int)$pdo->query("SELECT COUNT(*) FROM entry_scores WHERE score_source = 'recipe'")->fetchColumn();
+        } catch (PDOException $e) {}
+        
         include 'views/settings.php';
         break;
         
@@ -912,6 +966,42 @@ switch ($action) {
     
     case 'rename_email_tag':
         handleRenameEmailTag($pdo);
+        break;
+    
+    case 'save_magnitu_config':
+        // Save Magnitu settings from settings page
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $threshold = max(0.0, min(1.0, (float)($_POST['alert_threshold'] ?? 0.75)));
+            $sortByRelevance = isset($_POST['sort_by_relevance']) ? '1' : '0';
+            
+            setMagnituConfig($pdo, 'alert_threshold', (string)$threshold);
+            setMagnituConfig($pdo, 'sort_by_relevance', $sortByRelevance);
+            
+            $_SESSION['success'] = 'Magnitu settings saved.';
+        }
+        header('Location: ?action=settings#magnitu-settings');
+        break;
+    
+    case 'regenerate_magnitu_key':
+        // Generate a new API key
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $newKey = bin2hex(random_bytes(16));
+            setMagnituConfig($pdo, 'api_key', $newKey);
+            $_SESSION['success'] = 'New Magnitu API key generated.';
+        }
+        header('Location: ?action=settings#magnitu-settings');
+        break;
+    
+    case 'clear_magnitu_scores':
+        // Clear all scores (reset)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $pdo->exec("DELETE FROM entry_scores");
+            setMagnituConfig($pdo, 'recipe_json', '');
+            setMagnituConfig($pdo, 'recipe_version', '0');
+            setMagnituConfig($pdo, 'last_sync_at', '');
+            $_SESSION['success'] = 'All Magnitu scores and recipe cleared.';
+        }
+        header('Location: ?action=settings#magnitu-settings');
         break;
         
     case 'api_email_tags':
@@ -1168,6 +1258,294 @@ switch ($action) {
         // Get last code change date (use modification time of index.php)
         $lastChangeDate = date('d.m.Y', filemtime(__FILE__));
         include 'views/styleguide.php';
+        break;
+
+    // ═══════════════════════════════════════════════════════════════
+    // Magnitu API endpoints
+    // All require Bearer token authentication via API key
+    // ═══════════════════════════════════════════════════════════════
+    
+    case 'magnitu_entries':
+        // GET /index.php?action=magnitu_entries&since=2026-01-01T00:00:00Z&type=all
+        // Returns entries for Magnitu to fetch and label
+        header('Content-Type: application/json');
+        if (!validateMagnituApiKey($pdo)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid API key']);
+            break;
+        }
+        
+        $since = $_GET['since'] ?? null;
+        $type = $_GET['type'] ?? 'all';
+        $limit = min((int)($_GET['limit'] ?? 500), 2000);
+        
+        $entries = [];
+        
+        // Feed items (RSS + Substack)
+        if ($type === 'all' || $type === 'feed_item') {
+            $sql = "SELECT fi.id, fi.title, fi.description, fi.content, fi.link, fi.author,
+                           fi.published_date, f.title as feed_title, f.category as feed_category,
+                           f.source_type
+                    FROM feed_items fi
+                    JOIN feeds f ON fi.feed_id = f.id
+                    WHERE f.disabled = 0";
+            $params = [];
+            if ($since) {
+                $sql .= " AND fi.published_date >= ?";
+                $params[] = $since;
+            }
+            $sql .= " ORDER BY fi.published_date DESC LIMIT " . (int)$limit;
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            foreach ($stmt->fetchAll() as $row) {
+                $entries[] = [
+                    'entry_type' => 'feed_item',
+                    'entry_id' => (int)$row['id'],
+                    'title' => $row['title'],
+                    'description' => strip_tags($row['description'] ?? ''),
+                    'content' => strip_tags($row['content'] ?? ''),
+                    'link' => $row['link'],
+                    'author' => $row['author'],
+                    'published_date' => $row['published_date'],
+                    'source_name' => $row['feed_title'],
+                    'source_category' => $row['feed_category'],
+                    'source_type' => $row['source_type'] ?? 'rss',
+                ];
+            }
+        }
+        
+        // Emails
+        if ($type === 'all' || $type === 'email') {
+            $emailTable = 'emails';
+            try {
+                $allTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($allTables as $t) {
+                    if (strtolower($t) === 'fetched_emails') { $emailTable = $t; break; }
+                }
+            } catch (PDOException $e) {}
+            
+            try {
+                $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '$emailTable'")->fetchAll(PDO::FETCH_COLUMN);
+                $fromEmailCol = in_array('from_email', $cols) ? 'from_email' : (in_array('from_addr', $cols) ? 'from_addr' : 'from_email');
+                $fromNameCol = in_array('from_name', $cols) ? 'from_name' : "''" ;
+                $textBodyCol = in_array('text_body', $cols) ? 'text_body' : (in_array('body_text', $cols) ? 'body_text' : 'text_body');
+                $htmlBodyCol = in_array('html_body', $cols) ? 'html_body' : (in_array('body_html', $cols) ? 'body_html' : 'html_body');
+                $dateCol = in_array('date_received', $cols) ? 'date_received' : (in_array('date_utc', $cols) ? 'date_utc' : 'created_at');
+                
+                $sql = "SELECT e.id, e.subject, e.$fromEmailCol as from_email, $fromNameCol as from_name,
+                               e.$textBodyCol as text_body, e.$htmlBodyCol as html_body, e.$dateCol as entry_date,
+                               COALESCE(st.tag, 'unclassified') as sender_tag
+                        FROM `$emailTable` e
+                        LEFT JOIN sender_tags st ON e.$fromEmailCol = st.from_email AND (st.removed_at IS NULL) AND st.disabled = 0";
+                $params = [];
+                if ($since) {
+                    $sql .= " WHERE e.$dateCol >= ?";
+                    $params[] = $since;
+                }
+                $sql .= " ORDER BY e.$dateCol DESC LIMIT " . (int)$limit;
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                foreach ($stmt->fetchAll() as $row) {
+                    $body = $row['text_body'] ?: strip_tags($row['html_body'] ?? '');
+                    $entries[] = [
+                        'entry_type' => 'email',
+                        'entry_id' => (int)$row['id'],
+                        'title' => $row['subject'] ?: '(No subject)',
+                        'description' => mb_substr(trim(preg_replace('/\s+/', ' ', $body)), 0, 500),
+                        'content' => $body,
+                        'link' => '',
+                        'author' => $row['from_name'] ?: $row['from_email'],
+                        'published_date' => $row['entry_date'],
+                        'source_name' => $row['from_name'] ?: $row['from_email'],
+                        'source_category' => $row['sender_tag'],
+                        'source_type' => 'email',
+                    ];
+                }
+            } catch (PDOException $e) {
+                // Email table might not exist or have different schema
+            }
+        }
+        
+        // Lex items
+        if ($type === 'all' || $type === 'lex_item') {
+            try {
+                $sql = "SELECT id, celex, title, document_date, document_type, eurlex_url, source
+                        FROM lex_items";
+                $params = [];
+                if ($since) {
+                    $sql .= " WHERE document_date >= ?";
+                    $params[] = $since;
+                }
+                $sql .= " ORDER BY document_date DESC LIMIT " . (int)$limit;
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                foreach ($stmt->fetchAll() as $row) {
+                    $entries[] = [
+                        'entry_type' => 'lex_item',
+                        'entry_id' => (int)$row['id'],
+                        'title' => $row['title'],
+                        'description' => ($row['document_type'] ?? '') . ' | ' . ($row['celex'] ?? ''),
+                        'content' => $row['title'],
+                        'link' => $row['eurlex_url'] ?? '',
+                        'author' => '',
+                        'published_date' => $row['document_date'],
+                        'source_name' => $row['source'] === 'ch' ? 'Fedlex' : 'EUR-Lex',
+                        'source_category' => $row['document_type'] ?? 'Legislation',
+                        'source_type' => 'lex_' . ($row['source'] ?? 'eu'),
+                    ];
+                }
+            } catch (PDOException $e) {
+                // lex_items table might not exist yet
+            }
+        }
+        
+        echo json_encode([
+            'entries' => $entries,
+            'total' => count($entries),
+            'since' => $since,
+            'type' => $type,
+        ]);
+        break;
+    
+    case 'magnitu_scores':
+        // POST /index.php?action=magnitu_scores
+        // Receive batch of scores from Magnitu
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'POST required']);
+            break;
+        }
+        if (!validateMagnituApiKey($pdo)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid API key']);
+            break;
+        }
+        
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input || !isset($input['scores'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid JSON body, expected {scores: [...]}']);
+            break;
+        }
+        
+        $scores = $input['scores'];
+        $modelVersion = (int)($input['model_version'] ?? 0);
+        $inserted = 0;
+        $updated = 0;
+        
+        $upsertStmt = $pdo->prepare("
+            INSERT INTO entry_scores (entry_type, entry_id, relevance_score, predicted_label, explanation, score_source, model_version)
+            VALUES (?, ?, ?, ?, ?, 'magnitu', ?)
+            ON DUPLICATE KEY UPDATE
+                relevance_score = VALUES(relevance_score),
+                predicted_label = VALUES(predicted_label),
+                explanation = VALUES(explanation),
+                score_source = 'magnitu',
+                model_version = VALUES(model_version)
+        ");
+        
+        foreach ($scores as $score) {
+            $entryType = $score['entry_type'] ?? '';
+            $entryId = (int)($score['entry_id'] ?? 0);
+            $relevanceScore = (float)($score['relevance_score'] ?? 0);
+            $predictedLabel = $score['predicted_label'] ?? null;
+            $explanation = isset($score['explanation']) ? json_encode($score['explanation']) : null;
+            
+            if (!in_array($entryType, ['feed_item', 'email', 'lex_item']) || $entryId <= 0) continue;
+            
+            $upsertStmt->execute([$entryType, $entryId, $relevanceScore, $predictedLabel, $explanation, $modelVersion]);
+            if ($upsertStmt->rowCount() === 1) $inserted++;
+            else $updated++;
+        }
+        
+        // Update last sync timestamp
+        setMagnituConfig($pdo, 'last_sync_at', date('Y-m-d H:i:s'));
+        
+        echo json_encode([
+            'success' => true,
+            'inserted' => $inserted,
+            'updated' => $updated,
+            'total' => count($scores),
+        ]);
+        break;
+    
+    case 'magnitu_recipe':
+        // GET  — return current recipe
+        // POST — receive new recipe from Magnitu
+        header('Content-Type: application/json');
+        if (!validateMagnituApiKey($pdo)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid API key']);
+            break;
+        }
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $input = json_decode(file_get_contents('php://input'), true);
+            if (!$input || !isset($input['keywords'])) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid recipe JSON']);
+                break;
+            }
+            
+            setMagnituConfig($pdo, 'recipe_json', json_encode($input));
+            setMagnituConfig($pdo, 'recipe_version', (string)($input['version'] ?? ((int)getMagnituConfig($pdo, 'recipe_version') + 1)));
+            setMagnituConfig($pdo, 'last_sync_at', date('Y-m-d H:i:s'));
+            
+            // Re-score all unscored entries (or entries with recipe-based scores) using new recipe
+            magnituRescore($pdo, $input);
+            
+            echo json_encode(['success' => true, 'recipe_version' => getMagnituConfig($pdo, 'recipe_version')]);
+        } else {
+            $recipe = getMagnituConfig($pdo, 'recipe_json');
+            echo $recipe ?: json_encode(null);
+        }
+        break;
+    
+    case 'magnitu_status':
+        // GET — return status for Magnitu to check connectivity and state
+        header('Content-Type: application/json');
+        if (!validateMagnituApiKey($pdo)) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Invalid API key']);
+            break;
+        }
+        
+        $totalFeedItems = $pdo->query("SELECT COUNT(*) FROM feed_items")->fetchColumn();
+        $totalEmails = 0;
+        try {
+            $emailTable = 'emails';
+            $allTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($allTables as $t) {
+                if (strtolower($t) === 'fetched_emails') { $emailTable = $t; break; }
+            }
+            $totalEmails = $pdo->query("SELECT COUNT(*) FROM `$emailTable`")->fetchColumn();
+        } catch (PDOException $e) {}
+        $totalLex = 0;
+        try { $totalLex = $pdo->query("SELECT COUNT(*) FROM lex_items")->fetchColumn(); } catch (PDOException $e) {}
+        
+        $scoredCount = $pdo->query("SELECT COUNT(*) FROM entry_scores")->fetchColumn();
+        $magnituScored = $pdo->query("SELECT COUNT(*) FROM entry_scores WHERE score_source = 'magnitu'")->fetchColumn();
+        $recipeScored = $pdo->query("SELECT COUNT(*) FROM entry_scores WHERE score_source = 'recipe'")->fetchColumn();
+        
+        echo json_encode([
+            'status' => 'ok',
+            'version' => '0.3.2',
+            'entries' => [
+                'feed_items' => (int)$totalFeedItems,
+                'emails' => (int)$totalEmails,
+                'lex_items' => (int)$totalLex,
+                'total' => (int)$totalFeedItems + (int)$totalEmails + (int)$totalLex,
+            ],
+            'scores' => [
+                'total' => (int)$scoredCount,
+                'magnitu' => (int)$magnituScored,
+                'recipe' => (int)$recipeScored,
+            ],
+            'recipe_version' => (int)getMagnituConfig($pdo, 'recipe_version'),
+            'alert_threshold' => (float)getMagnituConfig($pdo, 'alert_threshold'),
+            'last_sync_at' => getMagnituConfig($pdo, 'last_sync_at') ?: null,
+        ]);
         break;
     
     default:
@@ -2344,5 +2722,133 @@ function refreshEmails($pdo) {
         }
     } catch (PDOException $e) {
         $_SESSION['error'] = 'Error refreshing emails: ' . $e->getMessage();
+    }
+}
+
+/**
+ * Re-score entries that don't have a Magnitu (full model) score using the recipe.
+ * Called when a new recipe is uploaded.
+ */
+function magnituRescore($pdo, $recipeData) {
+    if (empty($recipeData) || empty($recipeData['keywords'])) return;
+    
+    // Score feed_items that don't have a magnitu score
+    $stmt = $pdo->query("
+        SELECT fi.id, fi.title, fi.description, fi.content, f.source_type
+        FROM feed_items fi
+        JOIN feeds f ON fi.feed_id = f.id
+        WHERE f.disabled = 0
+          AND NOT EXISTS (
+              SELECT 1 FROM entry_scores es 
+              WHERE es.entry_type = 'feed_item' AND es.entry_id = fi.id AND es.score_source = 'magnitu'
+          )
+    ");
+    $upsert = $pdo->prepare("
+        INSERT INTO entry_scores (entry_type, entry_id, relevance_score, predicted_label, explanation, score_source, model_version)
+        VALUES ('feed_item', ?, ?, ?, ?, 'recipe', ?)
+        ON DUPLICATE KEY UPDATE
+            relevance_score = VALUES(relevance_score),
+            predicted_label = VALUES(predicted_label),
+            explanation = VALUES(explanation),
+            score_source = IF(score_source = 'magnitu', score_source, 'recipe'),
+            model_version = IF(score_source = 'magnitu', model_version, VALUES(model_version))
+    ");
+    $version = (int)($recipeData['version'] ?? 0);
+    
+    foreach ($stmt->fetchAll() as $row) {
+        $sourceType = ($row['source_type'] === 'substack') ? 'substack' : 'rss';
+        $result = scoreEntryWithRecipe($recipeData, $row['title'] ?? '', ($row['content'] ?: $row['description']) ?? '', $sourceType);
+        if ($result) {
+            $upsert->execute([
+                $row['id'],
+                $result['relevance_score'],
+                $result['predicted_label'],
+                json_encode($result['explanation']),
+                $version,
+            ]);
+        }
+    }
+    
+    // Score lex_items
+    try {
+        $stmt = $pdo->query("
+            SELECT li.id, li.title, li.document_type, li.source
+            FROM lex_items li
+            WHERE NOT EXISTS (
+                SELECT 1 FROM entry_scores es 
+                WHERE es.entry_type = 'lex_item' AND es.entry_id = li.id AND es.score_source = 'magnitu'
+            )
+        ");
+        foreach ($stmt->fetchAll() as $row) {
+            $sourceType = 'lex_' . ($row['source'] ?? 'eu');
+            $result = scoreEntryWithRecipe($recipeData, $row['title'] ?? '', ($row['document_type'] ?? ''), $sourceType);
+            if ($result) {
+                $upsert = $pdo->prepare("
+                    INSERT INTO entry_scores (entry_type, entry_id, relevance_score, predicted_label, explanation, score_source, model_version)
+                    VALUES ('lex_item', ?, ?, ?, ?, 'recipe', ?)
+                    ON DUPLICATE KEY UPDATE
+                        relevance_score = VALUES(relevance_score),
+                        predicted_label = VALUES(predicted_label),
+                        explanation = VALUES(explanation),
+                        score_source = IF(score_source = 'magnitu', score_source, 'recipe'),
+                        model_version = IF(score_source = 'magnitu', model_version, VALUES(model_version))
+                ");
+                $upsert->execute([
+                    $row['id'],
+                    $result['relevance_score'],
+                    $result['predicted_label'],
+                    json_encode($result['explanation']),
+                    $version,
+                ]);
+            }
+        }
+    } catch (PDOException $e) {
+        // lex_items might not exist
+    }
+    
+    // Score emails
+    try {
+        $emailTable = 'emails';
+        $allTables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($allTables as $t) {
+            if (strtolower($t) === 'fetched_emails') { $emailTable = $t; break; }
+        }
+        $cols = $pdo->query("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '$emailTable'")->fetchAll(PDO::FETCH_COLUMN);
+        $textBodyCol = in_array('text_body', $cols) ? 'text_body' : (in_array('body_text', $cols) ? 'body_text' : 'text_body');
+        $htmlBodyCol = in_array('html_body', $cols) ? 'html_body' : (in_array('body_html', $cols) ? 'body_html' : 'html_body');
+        
+        $stmt = $pdo->query("
+            SELECT e.id, e.subject, e.$textBodyCol as text_body, e.$htmlBodyCol as html_body
+            FROM `$emailTable` e
+            WHERE NOT EXISTS (
+                SELECT 1 FROM entry_scores es 
+                WHERE es.entry_type = 'email' AND es.entry_id = e.id AND es.score_source = 'magnitu'
+            )
+        ");
+        $upsertEmail = $pdo->prepare("
+            INSERT INTO entry_scores (entry_type, entry_id, relevance_score, predicted_label, explanation, score_source, model_version)
+            VALUES ('email', ?, ?, ?, ?, 'recipe', ?)
+            ON DUPLICATE KEY UPDATE
+                relevance_score = VALUES(relevance_score),
+                predicted_label = VALUES(predicted_label),
+                explanation = VALUES(explanation),
+                score_source = IF(score_source = 'magnitu', score_source, 'recipe'),
+                model_version = IF(score_source = 'magnitu', model_version, VALUES(model_version))
+        ");
+        foreach ($stmt->fetchAll() as $row) {
+            $body = $row['text_body'] ?: strip_tags($row['html_body'] ?? '');
+            $result = scoreEntryWithRecipe($recipeData, $row['subject'] ?? '', $body, 'email');
+            if ($result) {
+                $upsertEmail->execute([
+                    $row['id'],
+                    $result['relevance_score'],
+                    $result['predicted_label'],
+                    json_encode($result['explanation']),
+                    $version,
+                ]);
+            }
+        }
+    } catch (PDOException $e) {
+        // Email table might not exist
     }
 }

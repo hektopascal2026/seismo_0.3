@@ -135,13 +135,38 @@
                         <?php else: ?>
                             Refreshed: Never
                         <?php endif; ?>
+                        <?php if (!empty($hasMagnituScores)): ?>
+                            <span class="magnitu-coverage">&middot; <?= $scoredCount ?> of <?= count($allItems) ?> scored</span>
+                        <?php endif; ?>
                     </h2>
-                    <button class="btn btn-secondary entry-expand-all-btn">&#9660; expand all</button>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <?php if (!empty($hasMagnituScores)): ?>
+                            <?php if ($magnituSortByRelevance): ?>
+                                <a href="?action=index&sort=date&tags_submitted=1<?= !empty($selectedTags) ? '&' . http_build_query(['tags' => $selectedTags]) : '' ?>" class="btn btn-secondary" style="font-size: 12px; padding: 4px 10px; background:#FF6B6B;" title="Currently sorted by relevance. Click for chronological.">Sort: Relevance</a>
+                            <?php else: ?>
+                                <a href="?action=index&sort=relevance&tags_submitted=1<?= !empty($selectedTags) ? '&' . http_build_query(['tags' => $selectedTags]) : '' ?>" class="btn btn-secondary" style="font-size: 12px; padding: 4px 10px;" title="Currently chronological. Click to sort by relevance.">Sort: Date</a>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        <button class="btn btn-secondary entry-expand-all-btn">&#9660; expand all</button>
+                    </div>
                 </div>
             <?php endif; ?>
             
             <?php if (!empty($allItems)): ?>
                 <?php foreach ($allItems as $itemWrapper): ?>
+                    <?php
+                        // Magnitu score data for this entry
+                        $entryScore = $itemWrapper['score'] ?? null;
+                        $relevanceScore = $entryScore ? (float)$entryScore['relevance_score'] : null;
+                        $predictedLabel = $entryScore['predicted_label'] ?? null;
+                        $scoreExplanation = $entryScore ? json_decode($entryScore['explanation'] ?? '{}', true) : null;
+                        $isAlert = ($relevanceScore !== null && $relevanceScore >= $magnituAlertThreshold);
+                        $scoreBadgeClass = '';
+                        if ($predictedLabel === 'investigation_lead') $scoreBadgeClass = 'magnitu-badge-investigation';
+                        elseif ($predictedLabel === 'important') $scoreBadgeClass = 'magnitu-badge-important';
+                        elseif ($predictedLabel === 'background') $scoreBadgeClass = 'magnitu-badge-background';
+                        elseif ($predictedLabel === 'noise') $scoreBadgeClass = 'magnitu-badge-noise';
+                    ?>
                     <?php if ($itemWrapper['type'] === 'feed' || $itemWrapper['type'] === 'substack'): ?>
                         <?php $item = $itemWrapper['data']; ?>
                         <?php
@@ -151,10 +176,13 @@
                             $hasMore = mb_strlen($fullContent) > 200;
                             $feedTagColor = ($itemWrapper['type'] === 'substack') ? 'background-color: #C5B4D1;' : 'background-color: #add8e6;';
                         ?>
-                        <div class="entry-card">
+                        <div class="entry-card<?= $isAlert ? ' magnitu-alert' : '' ?>">
                             <div class="entry-header">
                                 <?php if (!empty($item['feed_category']) && $item['feed_category'] !== 'unsortiert'): ?>
                                     <span class="entry-tag" style="<?= $feedTagColor ?>"><?= htmlspecialchars($item['feed_category']) ?></span>
+                                <?php endif; ?>
+                                <?php if ($relevanceScore !== null): ?>
+                                    <span class="magnitu-badge <?= $scoreBadgeClass ?>" title="Magnitu: <?= htmlspecialchars($predictedLabel ?? '') ?> (<?= round($relevanceScore * 100) ?>%)"><?= round($relevanceScore * 100) ?></span>
                                 <?php endif; ?>
                             </div>
                             <h3 class="entry-title">
@@ -181,10 +209,25 @@
                                 </div>
                                 <div class="entry-full-content" style="display:none"><?= htmlspecialchars($fullContent) ?></div>
                             <?php endif; ?>
+                            <?php if ($scoreExplanation && !empty($scoreExplanation['top_features'])): ?>
+                                <div class="magnitu-explanation" style="display:none;">
+                                    <div class="magnitu-explanation-label">Magnitu: <?= htmlspecialchars($predictedLabel ?? '') ?> (<?= round($relevanceScore * 100) ?>% confidence)</div>
+                                    <div class="magnitu-explanation-features">
+                                        <?php foreach ($scoreExplanation['top_features'] as $feat): ?>
+                                            <span class="magnitu-feature <?= ($feat['direction'] ?? 'positive') === 'positive' ? 'magnitu-feature-positive' : 'magnitu-feature-negative' ?>">
+                                                <?= htmlspecialchars($feat['feature']) ?> <?= ($feat['direction'] ?? 'positive') === 'positive' ? '+' : '' ?><?= round($feat['weight'], 2) ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <div class="entry-actions">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <?php if ($hasMore): ?>
                                         <button class="btn btn-secondary entry-expand-btn">&#9660; expand</button>
+                                    <?php endif; ?>
+                                    <?php if ($scoreExplanation && !empty($scoreExplanation['top_features'])): ?>
+                                        <button class="btn btn-secondary magnitu-why-btn" style="font-size: 11px; padding: 3px 8px;">Why?</button>
                                     <?php endif; ?>
                                 </div>
                                 <?php if ($item['published_date']): ?>
@@ -203,10 +246,13 @@
                             $lexUrl = $lexItem['eurlex_url'] ?? '#';
                             $lexDate = $lexItem['document_date'] ? date('d.m.Y', strtotime($lexItem['document_date'])) : '';
                         ?>
-                        <div class="entry-card">
+                        <div class="entry-card<?= $isAlert ? ' magnitu-alert' : '' ?>">
                             <div class="entry-header">
                                 <span class="entry-tag" style="background-color: #f5f562; border-color: #000000;"><?= $lexSourceEmoji ?> <?= $lexSourceLabel ?></span>
                                 <span class="entry-tag" style="background-color: #f5f5f5;"><?= htmlspecialchars($lexDocType) ?></span>
+                                <?php if ($relevanceScore !== null): ?>
+                                    <span class="magnitu-badge <?= $scoreBadgeClass ?>" title="Magnitu: <?= htmlspecialchars($predictedLabel ?? '') ?> (<?= round($relevanceScore * 100) ?>%)"><?= round($relevanceScore * 100) ?></span>
+                                <?php endif; ?>
                             </div>
                             <h3 class="entry-title">
                                 <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener">
@@ -217,10 +263,25 @@
                                     <?php endif; ?>
                                 </a>
                             </h3>
+                            <?php if ($scoreExplanation && !empty($scoreExplanation['top_features'])): ?>
+                                <div class="magnitu-explanation" style="display:none;">
+                                    <div class="magnitu-explanation-label">Magnitu: <?= htmlspecialchars($predictedLabel ?? '') ?> (<?= round($relevanceScore * 100) ?>% confidence)</div>
+                                    <div class="magnitu-explanation-features">
+                                        <?php foreach ($scoreExplanation['top_features'] as $feat): ?>
+                                            <span class="magnitu-feature <?= ($feat['direction'] ?? 'positive') === 'positive' ? 'magnitu-feature-positive' : 'magnitu-feature-negative' ?>">
+                                                <?= htmlspecialchars($feat['feature']) ?> <?= ($feat['direction'] ?? 'positive') === 'positive' ? '+' : '' ?><?= round($feat['weight'], 2) ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <div class="entry-actions">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <span style="font-family: monospace;"><?= htmlspecialchars($lexItem['celex'] ?? '') ?></span>
                                     <a href="<?= htmlspecialchars($lexUrl) ?>" target="_blank" rel="noopener" class="entry-link"><?= $lexIsEu ? 'EUR-Lex →' : 'Fedlex →' ?></a>
+                                    <?php if ($scoreExplanation && !empty($scoreExplanation['top_features'])): ?>
+                                        <button class="btn btn-secondary magnitu-why-btn" style="font-size: 11px; padding: 3px 8px;">Why?</button>
+                                    <?php endif; ?>
                                 </div>
                                 <?php if ($lexDate): ?>
                                     <span class="entry-date"><?= $lexDate ?></span>
@@ -249,10 +310,13 @@
                             if (mb_strlen($body) > 200) $bodyPreview .= '...';
                             $hasMore = mb_strlen($body) > 200;
                         ?>
-                        <div class="entry-card">
+                        <div class="entry-card<?= $isAlert ? ' magnitu-alert' : '' ?>">
                             <div class="entry-header">
                                 <?php if (!empty($email['sender_tag']) && $email['sender_tag'] !== 'unclassified'): ?>
                                     <span class="entry-tag" style="background-color: #FFDBBB;"><?= htmlspecialchars($email['sender_tag']) ?></span>
+                                <?php endif; ?>
+                                <?php if ($relevanceScore !== null): ?>
+                                    <span class="magnitu-badge <?= $scoreBadgeClass ?>" title="Magnitu: <?= htmlspecialchars($predictedLabel ?? '') ?> (<?= round($relevanceScore * 100) ?>%)"><?= round($relevanceScore * 100) ?></span>
                                 <?php endif; ?>
                             </div>
                             <h3 class="entry-title">
@@ -272,10 +336,25 @@
                                 ?>
                             </div>
                             <div class="entry-full-content" style="display:none"><?= htmlspecialchars($body) ?></div>
+                            <?php if ($scoreExplanation && !empty($scoreExplanation['top_features'])): ?>
+                                <div class="magnitu-explanation" style="display:none;">
+                                    <div class="magnitu-explanation-label">Magnitu: <?= htmlspecialchars($predictedLabel ?? '') ?> (<?= round($relevanceScore * 100) ?>% confidence)</div>
+                                    <div class="magnitu-explanation-features">
+                                        <?php foreach ($scoreExplanation['top_features'] as $feat): ?>
+                                            <span class="magnitu-feature <?= ($feat['direction'] ?? 'positive') === 'positive' ? 'magnitu-feature-positive' : 'magnitu-feature-negative' ?>">
+                                                <?= htmlspecialchars($feat['feature']) ?> <?= ($feat['direction'] ?? 'positive') === 'positive' ? '+' : '' ?><?= round($feat['weight'], 2) ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <div class="entry-actions">
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <?php if ($hasMore): ?>
                                         <button class="btn btn-secondary entry-expand-btn">&#9660; expand</button>
+                                    <?php endif; ?>
+                                    <?php if ($scoreExplanation && !empty($scoreExplanation['top_features'])): ?>
+                                        <button class="btn btn-secondary magnitu-why-btn" style="font-size: 11px; padding: 3px 8px;">Why?</button>
                                     <?php endif; ?>
                                 </div>
                                 <?php if ($createdAt): ?>
@@ -319,6 +398,22 @@
             full.style.display = 'block';
             if (btn) btn.textContent = '\u25B2 collapse';
         }
+
+        // Magnitu "Why?" toggle
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.magnitu-why-btn');
+            if (!btn) return;
+            var card = btn.closest('.entry-card');
+            var explanation = card.querySelector('.magnitu-explanation');
+            if (!explanation) return;
+            if (explanation.style.display === 'block') {
+                explanation.style.display = 'none';
+                btn.textContent = 'Why?';
+            } else {
+                explanation.style.display = 'block';
+                btn.textContent = 'Hide';
+            }
+        });
 
         // Per-entry toggle
         document.addEventListener('click', function(e) {

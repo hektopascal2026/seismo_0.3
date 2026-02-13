@@ -687,3 +687,98 @@ h3 {
         flex-direction: column;
     }
 }
+
+/* ═══ Magnitu: Relevance Scoring ═══ */
+
+/* Score badge (small number in entry header) */
+.magnitu-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 22px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    border: 2px solid #000000;
+    margin-left: auto;
+}
+
+.magnitu-badge-investigation {
+    background-color: #FF6B6B;
+    color: #000000;
+}
+
+.magnitu-badge-important {
+    background-color: #FFA94D;
+    color: #000000;
+}
+
+.magnitu-badge-background {
+    background-color: #74C0FC;
+    color: #000000;
+}
+
+.magnitu-badge-noise {
+    background-color: #e0e0e0;
+    color: #666666;
+}
+
+/* Alert highlighting for high-score entries */
+.entry-card.magnitu-alert {
+    border-color: #FF6B6B;
+    border-width: 2px;
+    box-shadow: 3px 3px 0px #FF6B6B;
+}
+
+.entry-card.magnitu-alert:hover {
+    box-shadow: 4px 4px 0px #FF6B6B;
+}
+
+/* Score coverage indicator in section title */
+.magnitu-coverage {
+    font-weight: 400;
+    font-size: 11px;
+    color: #666666;
+}
+
+/* Explanation panel (shown on "Why?" click) */
+.magnitu-explanation {
+    padding: 8px 12px;
+    margin: 6px 0;
+    border: 1px solid #d0d0d0;
+    background-color: #fafafa;
+    font-size: 12px;
+}
+
+.magnitu-explanation-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: #000000;
+}
+
+.magnitu-explanation-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.magnitu-feature {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: monospace;
+    border: 1px solid #d0d0d0;
+}
+
+.magnitu-feature-positive {
+    background-color: #e6ffe6;
+    border-color: #00aa00;
+}
+
+.magnitu-feature-negative {
+    background-color: #ffe6e6;
+    border-color: #cc0000;
+}

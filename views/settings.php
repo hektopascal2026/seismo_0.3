@@ -586,6 +586,119 @@
                 </div>
             </div>
         </section>
+        <!-- Magnitu Section -->
+        <section class="settings-section" id="magnitu-settings">
+            <h2 style="background-color: #FF6B6B; padding: 8px 14px; display: inline-block;">Magnitu</h2>
+            <p style="margin: 8px 0 16px; font-size: 12px;">
+                Magnitu is a separate app that learns what feed entries are relevant to you as a journalist.
+                It connects to Seismo via API to fetch entries, train a model, and push relevance scores back.
+            </p>
+
+            <!-- Connection Info -->
+            <div style="margin-bottom: 24px; padding: 16px; border: 2px solid #000000; background: #fafafa;">
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">API Key</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="magnituApiKey" 
+                               value="<?= htmlspecialchars($magnituConfig['api_key'] ?? '') ?>" 
+                               readonly
+                               style="flex: 1; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 12px; background: #f5f5f5; cursor: pointer;"
+                               onclick="this.select(); document.execCommand('copy'); this.style.borderColor='#00aa00'; setTimeout(()=>this.style.borderColor='#000000', 1500);"
+                               title="Click to copy">
+                        <form method="POST" action="?action=regenerate_magnitu_key" style="margin: 0;">
+                            <button type="submit" class="btn" onclick="return confirm('Regenerate API key? Magnitu will need the new key.');">Regenerate</button>
+                        </form>
+                    </div>
+                    <div style="font-size: 11px; margin-top: 4px; color: #666;">Click the key to copy. Use this in Magnitu's settings to connect.</div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Seismo API URL (for Magnitu)</label>
+                    <?php
+                        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+                        $path = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+                        $baseApiUrl = $protocol . '://' . $host . $path . '/index.php';
+                    ?>
+                    <input type="text" 
+                           value="<?= htmlspecialchars($baseApiUrl) ?>" 
+                           readonly
+                           style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: monospace; font-size: 12px; background: #f5f5f5; box-sizing: border-box; cursor: pointer;"
+                           onclick="this.select(); document.execCommand('copy'); this.style.borderColor='#00aa00'; setTimeout(()=>this.style.borderColor='#000000', 1500);"
+                           title="Click to copy">
+                </div>
+
+                <!-- Status -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 16px;">
+                    <div style="text-align: center; padding: 10px; border: 1px solid #d0d0d0;">
+                        <div style="font-size: 20px; font-weight: 700;"><?= $magnituScoreStats['total'] ?></div>
+                        <div style="font-size: 11px;">Entries Scored</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; border: 1px solid #d0d0d0;">
+                        <div style="font-size: 20px; font-weight: 700;"><?= $magnituScoreStats['magnitu'] ?></div>
+                        <div style="font-size: 11px;">By Magnitu (full model)</div>
+                    </div>
+                    <div style="text-align: center; padding: 10px; border: 1px solid #d0d0d0;">
+                        <div style="font-size: 20px; font-weight: 700;"><?= $magnituScoreStats['recipe'] ?></div>
+                        <div style="font-size: 11px;">By Recipe (keywords)</div>
+                    </div>
+                </div>
+                
+                <?php if (!empty($magnituConfig['last_sync_at'])): ?>
+                    <div style="font-size: 12px; margin-top: 12px;">
+                        Last sync: <strong><?= htmlspecialchars($magnituConfig['last_sync_at']) ?></strong>
+                        &middot; Recipe version: <strong><?= htmlspecialchars($magnituConfig['recipe_version'] ?? '0') ?></strong>
+                    </div>
+                <?php else: ?>
+                    <div style="font-size: 12px; margin-top: 12px; color: #666;">
+                        No sync yet. Connect Magnitu using the API key and URL above.
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Scoring Settings -->
+            <form method="POST" action="?action=save_magnitu_config">
+                <div style="margin-bottom: 24px; padding: 16px; border: 2px solid #000000; background: #fafafa;">
+                    <h3 style="margin-top: 0; margin-bottom: 12px;">Scoring Settings</h3>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Alert Threshold (0.0 - 1.0)</label>
+                            <input type="number" name="alert_threshold" 
+                                   value="<?= htmlspecialchars($magnituConfig['alert_threshold'] ?? '0.75') ?>" 
+                                   min="0" max="1" step="0.05"
+                                   style="width: 100%; padding: 6px 10px; border: 2px solid #000000; font-family: inherit; font-size: 14px; box-sizing: border-box;">
+                            <div style="font-size: 11px; margin-top: 4px; color: #666;">Entries scoring above this are highlighted as alerts in the feed.</div>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Default Sort</label>
+                            <label style="display: flex; align-items: center; gap: 8px; padding: 8px 0; cursor: pointer;">
+                                <input type="checkbox" name="sort_by_relevance" value="1" <?= ($magnituConfig['sort_by_relevance'] ?? '0') === '1' ? 'checked' : '' ?>>
+                                <span style="font-size: 14px;">Sort feed by relevance (instead of chronological)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Danger Zone -->
+            <div style="padding: 16px; border: 2px solid #FF2C2C; background: #fff5f5;">
+                <h3 style="margin-top: 0; margin-bottom: 8px; color: #FF2C2C;">Danger Zone</h3>
+                <p style="font-size: 12px; margin-bottom: 12px;">
+                    Clear all Magnitu scores and the scoring recipe. The feed will return to chronological order.
+                    Your Magnitu labels (in the Magnitu app) are not affected.
+                </p>
+                <form method="POST" action="?action=clear_magnitu_scores">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Clear all Magnitu scores and recipe? This cannot be undone.');">
+                        Clear All Scores
+                    </button>
+                </form>
+            </div>
+        </section>
     </div>
 
     <script>
