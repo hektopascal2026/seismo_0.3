@@ -753,6 +753,50 @@ switch ($action) {
         header('Location: ?action=view_feed&id=' . $feedId);
         break;
         
+    case 'refresh_all':
+        // Global refresh: feeds (RSS + Substack) + emails + lex
+        $results = [];
+        
+        // 1. Refresh all feeds (RSS + Substack)
+        try {
+            refreshAllFeeds($pdo);
+            $results[] = 'Feeds refreshed';
+        } catch (Exception $e) {
+            $results[] = 'Feeds: ' . $e->getMessage();
+        }
+        
+        // 2. Refresh emails
+        try {
+            refreshEmails($pdo);
+            $results[] = 'Emails refreshed';
+        } catch (Exception $e) {
+            $results[] = 'Emails: ' . $e->getMessage();
+        }
+        
+        // 3. Refresh lex items (EU + CH)
+        $lexCfg = getLexConfig();
+        if ($lexCfg['eu']['enabled'] ?? true) {
+            try {
+                $countEu = refreshLexItems($pdo);
+                $results[] = "🇪🇺 $countEu lex items";
+            } catch (Exception $e) {
+                $results[] = '🇪🇺 EU: ' . $e->getMessage();
+            }
+        }
+        if ($lexCfg['ch']['enabled'] ?? true) {
+            try {
+                $countCh = refreshFedlexItems($pdo);
+                $results[] = "🇨🇭 $countCh lex items";
+            } catch (Exception $e) {
+                $results[] = '🇨🇭 CH: ' . $e->getMessage();
+            }
+        }
+        
+        $_SESSION['success'] = implode(' · ', $results);
+        $currentAction = $_GET['from'] ?? 'index';
+        header('Location: ?action=' . $currentAction);
+        break;
+    
     case 'refresh_all_feeds':
         refreshAllFeeds($pdo);
         $currentAction = $_GET['from'] ?? 'index';
