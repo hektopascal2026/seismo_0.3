@@ -316,19 +316,35 @@ function getAllMagnituConfig($pdo) {
 /**
  * Validate Magnitu API key from request headers or query parameter.
  * Returns true if valid, false otherwise.
+ * Supports multiple header sources for CGI/FastCGI hosting compatibility.
  */
 function validateMagnituApiKey($pdo) {
     $apiKey = getMagnituConfig($pdo, 'api_key');
     if (empty($apiKey)) return false;
     
-    // Check Authorization header first
-    $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-    if (preg_match('/^Bearer\s+(.+)$/i', $authHeader, $matches)) {
+    // Try multiple sources for the Authorization header (CGI/FastCGI compatibility)
+    $authHeader = '';
+    
+    // 1. Standard getallheaders() (works with Apache module)
+    if (function_exists('getallheaders')) {
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    }
+    
+    // 2. CGI/FastCGI: check $_SERVER superglobal fallbacks
+    if (empty($authHeader) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+    }
+    if (empty($authHeader) && !empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+        $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+    }
+    
+    // Validate Bearer token if found
+    if (!empty($authHeader) && preg_match('/^Bearer\s+(.+)$/i', $authHeader, $matches)) {
         return hash_equals($apiKey, $matches[1]);
     }
     
-    // Fallback: check query parameter
+    // Fallback: check query parameter or POST body
     $queryKey = $_GET['api_key'] ?? $_POST['api_key'] ?? '';
     if (!empty($queryKey)) {
         return hash_equals($apiKey, $queryKey);
