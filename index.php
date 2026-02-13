@@ -270,6 +270,92 @@ switch ($action) {
         include 'views/index.php';
         break;
 
+    case 'magnitu':
+        // Magnitu page: show entries labeled as investigation_lead and important
+        $investigationItems = [];
+        $importantItems = [];
+        
+        try {
+            // Get all scored entries with investigation_lead or important labels
+            $scoredStmt = $pdo->query("
+                SELECT entry_type, entry_id, relevance_score, predicted_label, explanation, score_source, model_version
+                FROM entry_scores 
+                WHERE predicted_label IN ('investigation_lead', 'important')
+                ORDER BY predicted_label ASC, relevance_score DESC
+            ");
+            $scoredEntries = $scoredStmt->fetchAll();
+            
+            // Resolve each scored entry to its full data from the source table
+            foreach ($scoredEntries as $scored) {
+                $entryData = null;
+                $entryType = null;
+                $dateValue = null;
+                
+                if ($scored['entry_type'] === 'feed_item') {
+                    $stmt = $pdo->prepare("
+                        SELECT fi.*, f.title as feed_title, f.category as feed_category, f.source_type
+                        FROM feed_items fi
+                        JOIN feeds f ON fi.feed_id = f.id
+                        WHERE fi.id = ?
+                    ");
+                    $stmt->execute([$scored['entry_id']]);
+                    $entryData = $stmt->fetch();
+                    if ($entryData) {
+                        $entryType = ($entryData['source_type'] === 'substack') ? 'substack' : 'feed';
+                        $dateValue = $entryData['published_date'] ?? $entryData['cached_at'] ?? null;
+                    }
+                } elseif ($scored['entry_type'] === 'email') {
+                    $stmt = $pdo->prepare("SELECT * FROM fetched_emails WHERE id = ?");
+                    $stmt->execute([$scored['entry_id']]);
+                    $entryData = $stmt->fetch();
+                    if ($entryData) {
+                        $entryType = 'email';
+                        $dateValue = $entryData['date_received'] ?? $entryData['date_utc'] ?? $entryData['created_at'] ?? null;
+                    }
+                } elseif ($scored['entry_type'] === 'lex_item') {
+                    $stmt = $pdo->prepare("SELECT * FROM lex_items WHERE id = ?");
+                    $stmt->execute([$scored['entry_id']]);
+                    $entryData = $stmt->fetch();
+                    if ($entryData) {
+                        $entryType = 'lex';
+                        $dateValue = $entryData['document_date'] ?? $entryData['created_at'] ?? null;
+                    }
+                }
+                
+                if (!$entryData) continue;
+                
+                $item = [
+                    'type' => $entryType,
+                    'date' => $dateValue ? strtotime($dateValue) : 0,
+                    'data' => $entryData,
+                    'score' => $scored,
+                ];
+                
+                if ($scored['predicted_label'] === 'investigation_lead') {
+                    $investigationItems[] = $item;
+                } else {
+                    $importantItems[] = $item;
+                }
+            }
+            
+            // Sort each group chronologically (newest first)
+            usort($investigationItems, function($a, $b) { return $b['date'] - $a['date']; });
+            usort($importantItems, function($a, $b) { return $b['date'] - $a['date']; });
+            
+        } catch (PDOException $e) {
+            // entry_scores table might not exist yet
+        }
+        
+        // Stats
+        $magnituAlertThreshold = (float)(getMagnituConfig($pdo, 'alert_threshold') ?? 0.75);
+        $totalScored = 0;
+        try {
+            $totalScored = (int)$pdo->query("SELECT COUNT(*) FROM entry_scores")->fetchColumn();
+        } catch (PDOException $e) {}
+        
+        include 'views/magnitu.php';
+        break;
+
         case 'ai_view_unified':
     // 1. Fetch RSS Items
     $latestItemsStmt = $pdo->query("

@@ -29,6 +29,7 @@
 
         <nav class="nav-drawer" id="navDrawer">
             <a href="?action=index" class="nav-link">Feed</a>
+            <a href="?action=magnitu" class="nav-link">Magnitu</a>
             <a href="?action=feeds" class="nav-link">RSS</a>
             <a href="?action=lex" class="nav-link">Lex</a>
             <a href="?action=mail" class="nav-link active" style="background-color: #FFDBBB; color: #000000;">Mail</a>
